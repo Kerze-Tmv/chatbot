@@ -160,7 +160,7 @@ footer {{visibility: hidden;}}
         <img src="data:image/png;base64,{logo_base64}" class="logo">
         <div class="header-text">
             <h1>SMAN 1 TUNJUNGAN</h1>
-            <p>Chatbot AI Berbasis Groq Llama 3.1</p>
+            <p>Chatbot AI Masih Belum Resmi</p>
         </div>
     </div>
 </div>
