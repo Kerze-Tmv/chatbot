@@ -1,53 +1,47 @@
 import streamlit as st
 from huggingface_hub import InferenceClient
 
-st.title("💬 Chatbot (Hugging Face)")
-st.write("This chatbot uses a Hugging Face model via Inference API.")
+st.title("💬 Chatbot (Zephyr - Hugging Face)")
 
-hf_token = st.text_input("Hugging Face API Key", type="password")
+client = InferenceClient(
+    model="HuggingFaceH4/zephyr-7b-beta",
+    token=st.secrets["HF_TOKEN"],
+)
 
-if not hf_token:
-    st.info("Please add your Hugging Face API key to continue.", icon="🔑")
-else:
-    client = InferenceClient(
-        model="Qwen/Qwen2.5-3B-Instruct",
-        token=hf_token,
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Tampilkan chat history
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Input user
+if prompt := st.chat_input("What is up?"):
+
+    st.session_state.messages.append(
+        {"role": "user", "content": prompt}
     )
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    # Tampilkan history
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # Gabungkan jadi satu prompt
+    prompt_text = ""
+    for m in st.session_state.messages:
+        prompt_text += f"{m['role']}: {m['content']}\n"
 
-    # Input user
-    if prompt := st.chat_input("What is up?"):
+    response = client.text_generation(
+        prompt_text,
+        max_new_tokens=300,
+        temperature=0.7,
+    )
 
-        st.session_state.messages.append(
-            {"role": "user", "content": prompt}
-        )
+    reply = response
 
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    with st.chat_message("assistant"):
+        st.markdown(reply)
 
-        # Gabungkan jadi satu prompt text
-        prompt_text = ""
-        for m in st.session_state.messages:
-            prompt_text += f"{m['role']}: {m['content']}\n"
-
-        # Generate response
-        response = client.text_generation(
-            prompt_text,
-            max_new_tokens=300,
-        )
-
-        reply = response
-
-        with st.chat_message("assistant"):
-            st.markdown(reply)
-
-        st.session_state.messages.append(
-            {"role": "assistant", "content": reply}
-        )
+    st.session_state.messages.append(
+        {"role": "assistant", "content": reply}
+    )
