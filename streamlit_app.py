@@ -1,9 +1,9 @@
 import base64
-import requests
 import streamlit as st
+from openai import OpenAI
 
 # ==============================
-# PAGE CONFIG
+# CONFIG
 # ==============================
 st.set_page_config(
     page_title="SMAN 1 TUNJUNGAN - Chatbot AI",
@@ -12,13 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-HF_TOKEN = st.secrets["HF_TOKEN"]
-
-API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
-
-headers = {
-    "Authorization": f"Bearer {HF_TOKEN}"
-}
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # ==============================
 # LOAD LOGO
@@ -107,6 +101,13 @@ st.markdown(f"""
     max-width: 800px;
     margin: auto;
 }}
+
+@media screen and (max-width: 768px) {{
+    .chat-bubble {{
+        max-width: 92%;
+    }}
+}}
+
 </style>
 
 <div class="fixed-header">
@@ -133,15 +134,9 @@ if "messages" not in st.session_state:
 # ==============================
 for msg in st.session_state.messages:
     if msg["role"] == "user":
-        st.markdown(
-            f"<div class='chat-bubble user'>{msg['content']}</div>",
-            unsafe_allow_html=True
-        )
+        st.markdown(f"<div class='chat-bubble user'>{msg['content']}</div>", unsafe_allow_html=True)
     else:
-        st.markdown(
-            f"<div class='chat-bubble bot'>{msg['content']}</div>",
-            unsafe_allow_html=True
-        )
+        st.markdown(f"<div class='chat-bubble bot'>{msg['content']}</div>", unsafe_allow_html=True)
 
 # ==============================
 # INPUT
@@ -149,43 +144,24 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    st.markdown(
-        f"<div class='chat-bubble user'>{prompt}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='chat-bubble user'>{prompt}</div>", unsafe_allow_html=True)
 
     with st.spinner("Chatbot sedang mengetik..."):
 
-        full_prompt = (
-            "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. "
-            "Jawab dalam Bahasa Indonesia yang jelas dan profesional.\n\n"
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",   # hemat & cepat
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. Jawab dalam Bahasa Indonesia yang jelas dan profesional."
+                },
+                *st.session_state.messages
+            ],
+            max_tokens=200,
+            temperature=0.3
         )
 
-        for m in st.session_state.messages:
-            full_prompt += f"{m['role']}: {m['content']}\n"
-
-        payload = {
-            "inputs": full_prompt,
-            "parameters": {
-                "max_new_tokens": 200,
-                "temperature": 0.3,
-                "top_p": 0.9
-            }
-        }
-
-        response = requests.post(API_URL, headers=headers, json=payload)
-
-        result = response.json()
-
-        if isinstance(result, list):
-            reply = result[0]["generated_text"].split("assistant:")[-1].strip()
-        else:
-            reply = "Terjadi kesalahan pada server model."
+        reply = completion.choices[0].message.content
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    st.markdown(
-        f"<div class='chat-bubble bot'>{reply}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='chat-bubble bot'>{reply}</div>", unsafe_allow_html=True)
