@@ -34,13 +34,13 @@ else:
             st.markdown(prompt)
 
        prompt_text = ""
-for m in st.session_state.messages:
-    prompt_text += f"{m['role']}: {m['content']}\n"
-
-response = client.text_generation(
-    prompt_text,
-    max_new_tokens=300,
-)
+        for m in st.session_state.messages:
+            prompt_text += f"{m['role']}: {m['content']}\n"
+        
+        response = client.text_generation(
+            prompt_text,
+            max_new_tokens=300,
+        )
 
 reply = response
 
