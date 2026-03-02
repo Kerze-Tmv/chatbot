@@ -1,2 +1,5 @@
 streamlit
-openai
+streamlit
+huggingface_hub
+transformers
+torch
