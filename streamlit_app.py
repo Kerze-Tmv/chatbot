@@ -1,6 +1,6 @@
 import base64
+import requests
 import streamlit as st
-from huggingface_hub import InferenceClient
 
 # ==============================
 # PAGE CONFIG
@@ -12,10 +12,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ==============================
-# LOAD SECRET TOKEN
-# ==============================
 HF_TOKEN = st.secrets["HF_TOKEN"]
+
+API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}"
+}
 
 # ==============================
 # LOAD LOGO
@@ -31,7 +34,6 @@ logo_base64 = get_base64_image("logo.png")
 # ==============================
 st.markdown(f"""
 <style>
-
 .stApp {{
     background: #f1f5f9;
     font-family: 'Segoe UI', sans-serif;
@@ -105,13 +107,6 @@ st.markdown(f"""
     max-width: 800px;
     margin: auto;
 }}
-
-@media screen and (max-width: 768px) {{
-    .chat-bubble {{
-        max-width: 92%;
-    }}
-}}
-
 </style>
 
 <div class="fixed-header">
@@ -128,14 +123,6 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ==============================
-# INIT API CLIENT
-# ==============================
-client = InferenceClient(
-    model="HuggingFaceH4/zephyr-7b-beta",
-    token=HF_TOKEN
-)
-
-# ==============================
 # SESSION STATE
 # ==============================
 if "messages" not in st.session_state:
@@ -144,57 +131,61 @@ if "messages" not in st.session_state:
 # ==============================
 # DISPLAY CHAT
 # ==============================
-chat_area = st.container()
-
-with chat_area:
-    for msg in st.session_state.messages:
-        if msg["role"] == "user":
-            st.markdown(
-                f"<div class='chat-bubble user'>{msg['content']}</div>",
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(
-                f"<div class='chat-bubble bot'>{msg['content']}</div>",
-                unsafe_allow_html=True
-            )
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(
+            f"<div class='chat-bubble user'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            f"<div class='chat-bubble bot'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
 
 # ==============================
-# INPUT FLOW
+# INPUT
 # ==============================
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with chat_area:
-        st.markdown(
-            f"<div class='chat-bubble user'>{prompt}</div>",
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        f"<div class='chat-bubble user'>{prompt}</div>",
+        unsafe_allow_html=True
+    )
 
     with st.spinner("Chatbot sedang mengetik..."):
 
-        response = client.chat_completion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. "
-                        "Jawab dalam Bahasa Indonesia yang jelas, sopan, dan profesional."
-                    )
-                },
-                *st.session_state.messages
-            ],
-            max_tokens=200,
-            temperature=0.3
+        full_prompt = (
+            "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. "
+            "Jawab dalam Bahasa Indonesia yang jelas dan profesional.\n\n"
         )
 
-        reply = response.choices[0].message.content
+        for m in st.session_state.messages:
+            full_prompt += f"{m['role']}: {m['content']}\n"
+
+        payload = {
+            "inputs": full_prompt,
+            "parameters": {
+                "max_new_tokens": 200,
+                "temperature": 0.3,
+                "top_p": 0.9
+            }
+        }
+
+        response = requests.post(API_URL, headers=headers, json=payload)
+
+        result = response.json()
+
+        if isinstance(result, list):
+            reply = result[0]["generated_text"].split("assistant:")[-1].strip()
+        else:
+            reply = "Terjadi kesalahan pada server model."
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    with chat_area:
-        st.markdown(
-            f"<div class='chat-bubble bot'>{reply}</div>",
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        f"<div class='chat-bubble bot'>{reply}</div>",
+        unsafe_allow_html=True
+    )
