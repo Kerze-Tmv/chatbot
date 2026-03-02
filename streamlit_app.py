@@ -1,6 +1,6 @@
 import base64
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
 # ==============================
 # CONFIG
@@ -8,16 +8,12 @@ import google.generativeai as genai
 st.set_page_config(
     page_title="SMAN 1 TUNJUNGAN - Chatbot AI",
     page_icon="🎓",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
-# ==============================
-# GEMINI API
-# ==============================
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-model = genai.GenerativeModel("models/models/gemini-2.5-flash-lite")
+model_name = "gemini-2.0-flash"
 
 # ==============================
 # LOAD LOGO
@@ -29,7 +25,7 @@ def get_base64_image(image_path):
 logo_base64 = get_base64_image("logo.png")
 
 # ==============================
-# UI STYLE
+# UI HEADER
 # ==============================
 st.markdown(f"""
 <style>
@@ -37,98 +33,29 @@ st.markdown(f"""
     background: #f1f5f9;
     font-family: 'Segoe UI', sans-serif;
 }}
-
-.fixed-header {{
-    position: fixed;
-    top: 55px;
-    left: 0;
-    right: 0;
-    height: 110px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-    z-index: 999;
-}}
-
-.header-content {{
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}}
-
-.school-logo {{
-    width: 65px;
-    height: 65px;
-}}
-
-.header-text h1 {{
-    font-size: 26px;
-    margin: 0;
-    font-weight: 800;
-    color: #1e293b;
-}}
-
-.header-text p {{
-    font-size: 13px;
-    margin-top: 4px;
-    color: #64748b;
-}}
-
-.header-spacer {{
-    height: 170px;
-}}
-
 .chat-bubble {{
     padding: 14px 18px;
     border-radius: 18px;
     margin-bottom: 12px;
-    font-size: 15px;
     max-width: 75%;
-    line-height: 1.6;
 }}
-
 .user {{
     background: #2563eb;
     color: white;
     margin-left: auto;
 }}
-
 .bot {{
     background: white;
     border: 1px solid #e2e8f0;
-    color: #1e293b;
     margin-right: auto;
 }}
-
-[data-testid="stChatInput"] {{
-    max-width: 800px;
-    margin: auto;
-}}
-
-@media screen and (max-width: 768px) {{
-    .chat-bubble {{
-        max-width: 92%;
-    }}
-}}
 </style>
-
-<div class="fixed-header">
-    <div class="header-content">
-        <img src="data:image/png;base64,{logo_base64}" class="school-logo">
-        <div class="header-text">
-            <h1>SMAN 1 TUNJUNGAN</h1>
-            <p>Chatbot AI Berbasis Artificial Intelligence</p>
-        </div>
-    </div>
-</div>
-
-<div class="header-spacer"></div>
 """, unsafe_allow_html=True)
 
+st.title("🎓 SMAN 1 TUNJUNGAN - Chatbot AI")
+
 # ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -153,7 +80,6 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     with st.spinner("Chatbot sedang mengetik..."):
 
         chat_history = ""
-
         for m in st.session_state.messages:
             chat_history += f"{m['role']}: {m['content']}\n"
 
@@ -163,9 +89,12 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             + chat_history
         )
 
-        response = model.generate_content(full_prompt)
+        response = client.models.generate_content(
+            model=model_name,
+            contents=full_prompt,
+        )
+
         reply = response.text
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
     st.markdown(f"<div class='chat-bubble bot'>{reply}</div>", unsafe_allow_html=True)
-st.write([m.name for m in genai.list_models()])
