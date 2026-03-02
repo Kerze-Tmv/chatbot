@@ -1,6 +1,6 @@
 import base64
 import streamlit as st
-from google import genai
+from openai import OpenAI
 
 # ==============================
 # CONFIG
@@ -11,63 +11,30 @@ st.set_page_config(
     layout="wide"
 )
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
-model_name = "gemini-2.0-flash"
-
-# ==============================
-# LOAD LOGO
-# ==============================
-def get_base64_image(image_path):
-    with open(image_path, "rb") as img:
-        return base64.b64encode(img.read()).decode()
-
-logo_base64 = get_base64_image("logo.png")
+client = OpenAI(
+    api_key=st.secrets["GROQ_API_KEY"],
+    base_url="https://api.groq.com/openai/v1"
+)
 
 # ==============================
-# UI HEADER
+# MODEL (RECOMMENDED)
 # ==============================
-st.markdown(f"""
-<style>
-.stApp {{
-    background: #f1f5f9;
-    font-family: 'Segoe UI', sans-serif;
-}}
-.chat-bubble {{
-    padding: 14px 18px;
-    border-radius: 18px;
-    margin-bottom: 12px;
-    max-width: 75%;
-}}
-.user {{
-    background: #2563eb;
-    color: white;
-    margin-left: auto;
-}}
-.bot {{
-    background: white;
-    border: 1px solid #e2e8f0;
-    margin-right: auto;
-}}
-</style>
-""", unsafe_allow_html=True)
-
-st.title("🎓 SMAN 1 TUNJUNGAN - Chatbot AI")
+MODEL_NAME = "llama3-8b-8192"
 
 # ==============================
-# SESSION
+# SESSION STATE
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+st.title("🎓 SMAN 1 TUNJUNGAN - Chatbot AI (Groq)")
 
 # ==============================
 # DISPLAY CHAT
 # ==============================
 for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(f"<div class='chat-bubble user'>{msg['content']}</div>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"<div class='chat-bubble bot'>{msg['content']}</div>", unsafe_allow_html=True)
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
 # ==============================
 # INPUT
@@ -75,26 +42,28 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.markdown(f"<div class='chat-bubble user'>{prompt}</div>", unsafe_allow_html=True)
 
-    with st.spinner("Chatbot sedang mengetik..."):
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-        chat_history = ""
-        for m in st.session_state.messages:
-            chat_history += f"{m['role']}: {m['content']}\n"
+    with st.spinner("AI sedang mengetik..."):
 
-        full_prompt = (
-            "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. "
-            "Jawab dalam Bahasa Indonesia yang jelas dan profesional.\n\n"
-            + chat_history
+        completion = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. Jawab dalam Bahasa Indonesia yang jelas dan profesional."
+                },
+                *st.session_state.messages
+            ],
+            temperature=0.3,
+            max_tokens=300
         )
 
-        response = client.models.generate_content(
-            model=model_name,
-            contents=full_prompt,
-        )
-
-        reply = response.text
+        reply = completion.choices[0].message.content
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
-    st.markdown(f"<div class='chat-bubble bot'>{reply}</div>", unsafe_allow_html=True)
+
+    with st.chat_message("assistant"):
+        st.markdown(reply)
