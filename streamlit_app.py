@@ -1,23 +1,21 @@
 import streamlit as st
 from huggingface_hub import InferenceClient
 
-st.title("💬 Chatbot (Zephyr - Hugging Face)")
+st.title("💬 Chatbot (Phi-3 Mini)")
 
 client = InferenceClient(
-    model="HuggingFaceH4/zephyr-7b-beta",
+    model="microsoft/Phi-3-mini-4k-instruct",
     token=st.secrets["HF_TOKEN"],
 )
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Tampilkan chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Input user
-if prompt := st.chat_input("What is up?"):
+if prompt := st.chat_input("Say something..."):
 
     st.session_state.messages.append(
         {"role": "user", "content": prompt}
@@ -26,10 +24,15 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Gabungkan jadi satu prompt
     prompt_text = ""
+
     for m in st.session_state.messages:
-        prompt_text += f"{m['role']}: {m['content']}\n"
+        if m["role"] == "user":
+            prompt_text += f"<|user|>\n{m['content']}\n"
+        else:
+            prompt_text += f"<|assistant|>\n{m['content']}\n"
+
+    prompt_text += "<|assistant|>\n"
 
     response = client.text_generation(
         prompt_text,
@@ -37,7 +40,7 @@ if prompt := st.chat_input("What is up?"):
         temperature=0.7,
     )
 
-    reply = response
+    reply = response.strip()
 
     with st.chat_message("assistant"):
         st.markdown(reply)
