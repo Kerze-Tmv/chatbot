@@ -18,7 +18,7 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
-# CSS MODERN RESPONSIVE
+# CSS MODERN + FIXED HEADER
 # ==============================
 st.markdown("""
 <style>
@@ -29,33 +29,52 @@ st.markdown("""
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Center container */
-.block-container {
-    max-width: 900px;
-    margin: auto;
-    padding-top: 30px;
+/* Hide default Streamlit header */
+header {visibility: hidden;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Fixed Header */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 85px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+    z-index: 999;
 }
 
-/* Header */
-.main-title {
-    text-align: center;
-    font-size: 28px;
+.fixed-header h1 {
+    font-size: 22px;
+    margin: 0;
     font-weight: 800;
     color: #0f172a;
 }
 
-.sub-title {
-    text-align: center;
+.fixed-header p {
+    font-size: 13px;
+    margin: 0;
     color: #64748b;
-    margin-bottom: 25px;
 }
 
-/* Chat wrapper */
-.chat-wrapper {
-    margin-bottom: 100px;
+/* Spacer supaya chat tidak ketutup header */
+.header-spacer {
+    height: 110px;
 }
 
-/* Chat Bubble */
+/* Center content */
+.block-container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Chat bubble */
 .chat-bubble {
     padding: 14px 18px;
     border-radius: 22px;
@@ -84,49 +103,42 @@ st.markdown("""
     border: 1px solid #e2e8f0;
 }
 
-/* Input styling */
+/* Input center */
 [data-testid="stChatInput"] {
     max-width: 800px;
     margin: auto;
 }
 
-/* ==============================
-   MOBILE OPTIMIZATION
-   ============================== */
-
+/* Mobile optimization */
 @media screen and (max-width: 768px) {
-
-    .block-container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
 
     .chat-bubble {
         max-width: 92%;
         font-size: 14px;
-        padding: 12px 16px;
     }
 
-    .main-title {
-        font-size: 22px;
+    .fixed-header h1 {
+        font-size: 18px;
     }
 
-    .sub-title {
-        font-size: 13px;
+    .fixed-header p {
+        font-size: 12px;
     }
 }
 
 </style>
+
+<div class="fixed-header">
+    <h1>🎓 SMAN 1 TUNJUNGAN</h1>
+    <p>Chatbot AI Berbasis Groq Llama 3.1</p>
+</div>
+
+<div class="header-spacer"></div>
+
 """, unsafe_allow_html=True)
 
 # ==============================
-# HEADER
-# ==============================
-st.markdown("<div class='main-title'>🎓 SMAN 1 TUNJUNGAN</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-title'>Chatbot AI Berbasis Groq Llama 3.1</div>", unsafe_allow_html=True)
-
-# ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -134,8 +146,6 @@ if "messages" not in st.session_state:
 # ==============================
 # DISPLAY CHAT
 # ==============================
-st.markdown("<div class='chat-wrapper'>", unsafe_allow_html=True)
-
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         st.markdown(
@@ -148,14 +158,11 @@ for msg in st.session_state.messages:
             unsafe_allow_html=True
         )
 
-st.markdown("</div>", unsafe_allow_html=True)
-
 # ==============================
 # INPUT
 # ==============================
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
-    # tampil langsung supaya tidak delay
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.markdown(
         f"<div class='chat-bubble user'>{prompt}</div>",
