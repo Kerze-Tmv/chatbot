@@ -168,3 +168,5 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
     st.markdown(f"<div class='chat-bubble bot'>{reply}</div>", unsafe_allow_html=True)
+
+st.write([m.name for m in genai.list_models()])
