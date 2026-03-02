@@ -28,12 +28,80 @@ def get_base64_image(image_path):
 logo_base64 = get_base64_image("logo.png")
 
 # ==============================
-# CSS + FIXED HEADER
+# DATABASE GURU
+# ==============================
+teacher_data = {
+    "dhimas wisang aldoko": ["Informatika"],
+    "dra. yuni ni'wati": ["Bahasa Inggris", "Kepala Sekolah"],
+    "dra. nurlaela atmaningtri": ["Ekonomi TL", "PKWU"],
+    "ninik juliastuti": ["Kimia TL", "Kimia"],
+    "lilik fitri kusumawati": ["Ekonomi"],
+    "titik nurhayati": ["Biologi TL"],
+    "sumartini": ["Seni Budaya"],
+    "dra. retno umi haryati": ["Biologi TL"],
+    "drs. masngud": ["Pendidikan Agama Islam"],
+    "dra. theresia mulyorini": ["Bahasa Inggris", "B. Inggris TL"],
+    "yarto": ["Fisika TL", "Fisika"],
+    "watiningsih": ["Matematika TL"],
+    "suhartini": ["Bahasa Indonesia"],
+    "dra. sri astutik": ["Bahasa Indonesia"],
+    "hari setyawati": ["Ekonomi", "PKWU"],
+    "sunarni": ["Matematika", "Matematika TL"],
+    "muhammad ainur rofiq": ["Sejarah Indonesia", "Sejarah TL"],
+    "anik aprilyani": ["Geografi", "Waka Kurikulum"],
+    "donna heri satyani": ["Geografi", "Geografi TL"],
+    "sulastriyani": ["Sejarah Indonesia", "Sejarah TL"],
+    "firman fridayanto": ["Bahasa Inggris"],
+    "ikwan insanjaya": ["Seni Budaya"],
+    "kari rahayu": ["Biologi"],
+    "zainal arifin": ["Pendidikan Agama Islam"],
+    "novita ariana": ["BK"],
+    "rahayu indrayati": ["PJOK"],
+    "sriyani": ["Sosiologi", "Sosiologi TL"],
+    "endang setyowati": ["BK"],
+    "galuh sekar wijayanti": ["BK"],
+    "ayudhia sari rahmadani": ["Bahasa Indonesia"],
+    "syarifuddin ahmad": ["Bahasa Indonesia", "Waka Humas"],
+    "irma pramestiningrum": ["Fisika TL", "Fisika"],
+    "neneng oktora budiasri": ["Matematika"],
+    "dwi nur setiyawati": ["BK"],
+    "wahidatun nurul hidayah": ["BK"],
+    "santi aprilia riyanti": ["Kimia", "PKWU"],
+    "jatmiko": ["Bahasa Indonesia", "Waka Sarpras"],
+    "nihza al lutfi": ["Sejarah Indonesia", "Geografi", "Waka Kesiswaan"],
+    "udin hendri santoso": ["Geografi", "PKWU"],
+    "haniffuddin": ["Sosiologi", "Sosiologi TL"],
+    "sam getta gumilar": ["PJOK"],
+    "anik setyarini": ["Pendidikan Pancasila"],
+    "alifa nurul tafricha": ["Pendidikan Pancasila"],
+    "nurlaili miftakhuzzilvana": ["Bahasa Jawa"],
+    "moh. cholilur rohman": ["Matematika", "Matematika TL"],
+    "basar siswantoro": ["PJOK"],
+    "lailly oktavianingrum": ["Kimia TL"],
+    "sri purwati": ["Matematika"],
+    "dhony wijaya": ["Matematika Wajib"],
+    "siti listyowati": ["Fisika", "Fisika TL"],
+    "satria yoga tama": ["Bahasa Jawa"],
+    "manggar shintia wibawanti": ["Matematika"],
+    "joko priyanto": ["PKWU", "Sejarah"],
+    "ahmad ni'am": ["Pendidikan Agama Islam"],
+    "wiwit suryaningsih": ["Biologi TL", "Fisika", "Biologi"],
+    "nyoto": ["Matematika"],
+    "lilik kurniawan": ["PKWU", "Sejarah"],
+    "dwi setyowati": ["Basa Jawa"],
+    "ana dwi ariyani": ["Kimia", "Informatika", "Fisika"],
+    "wheny wulandari": ["Bahasa Inggris"],
+    "sr. veronika sedo bura": ["Agama Katolik"],
+    "sri rusmini": ["Agama Kristen"],
+    "sukemi": ["Pendidikan Agama Islam"],
+    "eko budi lestari": ["Agama Budha"],
+}
+
+# ==============================
+# CSS UI
 # ==============================
 st.markdown(f"""
 <style>
-
-/* Background */
 .stApp {{
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     font-family: 'Segoe UI', sans-serif;
@@ -43,7 +111,6 @@ header {{visibility: hidden;}}
 #MainMenu {{visibility: hidden;}}
 footer {{visibility: hidden;}}
 
-/* Fixed Header */
 .fixed-header {{
     position: fixed;
     top: 0;
@@ -70,15 +137,10 @@ footer {{visibility: hidden;}}
     border-radius: 12px;
 }}
 
-.header-text {{
-    text-align: left;
-}}
-
 .header-text h1 {{
     font-size: 20px;
     margin: 0;
     font-weight: 800;
-    color: #0f172a;
 }}
 
 .header-text p {{
@@ -87,70 +149,27 @@ footer {{visibility: hidden;}}
     color: #64748b;
 }}
 
-/* Spacer */
 .header-spacer {{
     height: 110px;
 }}
 
-/* Chat container */
-.block-container {{
-    max-width: 900px;
-    margin: auto;
-}}
-
-/* Chat bubble */
 .chat-bubble {{
     padding: 14px 18px;
     border-radius: 22px;
     margin-bottom: 14px;
     max-width: 75%;
-    line-height: 1.6;
-    font-size: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-    word-wrap: break-word;
 }}
 
 .user {{
-    background: linear-gradient(135deg, #2563eb, #1e40af);
+    background: #2563eb;
     color: white;
     margin-left: auto;
-    border-bottom-right-radius: 6px;
 }}
 
 .bot {{
     background: white;
-    color: #0f172a;
-    margin-right: auto;
-    border-bottom-left-radius: 6px;
     border: 1px solid #e2e8f0;
-}}
-
-/* Input */
-[data-testid="stChatInput"] {{
-    max-width: 800px;
-    margin: auto;
-}}
-
-/* Mobile */
-@media screen and (max-width: 768px) {{
-
-    .logo {{
-        width: 45px;
-        height: 45px;
-    }}
-
-    .header-text h1 {{
-        font-size: 16px;
-    }}
-
-    .header-text p {{
-        font-size: 11px;
-    }}
-
-    .chat-bubble {{
-        max-width: 92%;
-        font-size: 14px;
-    }}
+    margin-right: auto;
 }}
 
 </style>
@@ -160,7 +179,7 @@ footer {{visibility: hidden;}}
         <img src="data:image/png;base64,{logo_base64}" class="logo">
         <div class="header-text">
             <h1>SMAN 1 TUNJUNGAN</h1>
-            <p>Chatbot AI Masih Belum Resmi</p>
+            <p>Chatbot AI Sekolah</p>
         </div>
     </div>
 </div>
@@ -169,25 +188,17 @@ footer {{visibility: hidden;}}
 """, unsafe_allow_html=True)
 
 # ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ==============================
-# DISPLAY CHAT
-# ==============================
 for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(
-            f"<div class='chat-bubble user'>{msg['content']}</div>",
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            f"<div class='chat-bubble bot'>{msg['content']}</div>",
-            unsafe_allow_html=True
-        )
+    role_class = "user" if msg["role"] == "user" else "bot"
+    st.markdown(
+        f"<div class='chat-bubble {role_class}'>{msg['content']}</div>",
+        unsafe_allow_html=True
+    )
 
 # ==============================
 # INPUT
@@ -195,33 +206,42 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.markdown(
-        f"<div class='chat-bubble user'>{prompt}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='chat-bubble user'>{prompt}</div>", unsafe_allow_html=True)
 
-    with st.spinner("AI sedang mengetik..."):
+    lower_prompt = prompt.lower()
+    reply = None
 
+    # RULE GURU GANTENG
+    if "guru" in lower_prompt and "ganteng" in lower_prompt:
+        reply = "Guru paling ganteng adalah Pak Dhimas 😎"
+
+    # CEK NAMA GURU
+    if reply is None:
+        for teacher, subjects in teacher_data.items():
+            if teacher in lower_prompt:
+                reply = f"{teacher.title()} mengampu: {', '.join(subjects)}."
+                break
+
+    # CEK MAPEL
+    if reply is None:
+        for teacher, subjects in teacher_data.items():
+            for subject in subjects:
+                if subject.lower() in lower_prompt:
+                    reply = f"Guru yang mengampu {subject} adalah {teacher.title()}."
+                    break
+            if reply:
+                break
+
+    # FALLBACK AI
+    if reply is None:
         completion = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Kamu adalah Chatbot AI resmi SMAN 1 TUNJUNGAN. Jawab dalam Bahasa Indonesia yang jelas dan profesional."
-                },
-                *st.session_state.messages
-            ],
+            messages=[{"role": "system", "content": "Jawab dalam Bahasa Indonesia dengan sopan."},
+                      *st.session_state.messages],
             temperature=0.3,
-            max_tokens=500,
+            max_tokens=400,
         )
-
         reply = completion.choices[0].message.content
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": reply}
-    )
-
-    st.markdown(
-        f"<div class='chat-bubble bot'>{reply}</div>",
-        unsafe_allow_html=True
-    )
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    st.markdown(f"<div class='chat-bubble bot'>{reply}</div>", unsafe_allow_html=True)
