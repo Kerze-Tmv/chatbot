@@ -1,8 +1,7 @@
 streamlit
-streamlit
 huggingface_hub
 transformers
 torch
 openai
 streamlit
-google-generativeai
+google-genai
