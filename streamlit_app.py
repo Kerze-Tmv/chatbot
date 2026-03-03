@@ -22,7 +22,7 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
-# LOAD LOGO
+# LOAD DATA
 # ==============================
 def get_base64_image(path):
     try:
@@ -33,9 +33,6 @@ def get_base64_image(path):
 
 logo_base64 = get_base64_image("logo.png")
 
-# ==============================
-# LOAD DATA
-# ==============================
 try:
     with open("teachers.json", "r", encoding="utf-8") as f:
         raw = json.load(f)
@@ -45,16 +42,16 @@ except:
 
 try:
     with open("osis.json", "r", encoding="utf-8") as f:
-        raw = json.load(f)
-        osis = raw["osis"] if "osis" in raw else raw
+        raw_osis = json.load(f)
+        osis = raw_osis["osis"] if "osis" in raw_osis else raw_osis
 except:
     osis = {}
 
 try:
     with open("school_profile.json", "r", encoding="utf-8") as f:
-        school = json.load(f)
+        school_data = json.load(f)
 except:
-    school = {}
+    school_data = {}
 
 # ==============================
 # STYLE
@@ -64,7 +61,9 @@ st.markdown(f"""
 header {{visibility:hidden;}}
 .fixed-header {{
     position: fixed;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     background: white;
     padding: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -125,8 +124,8 @@ def render_bot(msg):
     """, unsafe_allow_html=True)
 
 def remove_duplicates(results):
-    unique = []
     seen = set()
+    unique = []
     for r in results:
         if r["nama"] not in seen:
             unique.append(r)
@@ -134,7 +133,80 @@ def remove_duplicates(results):
     return unique
 
 # ==============================
-# MAPEL SMART MATCH
+# SCHOOL PROFILE
+# ==============================
+def handle_school_profile(prompt):
+    prompt = normalize(prompt)
+    identitas = school_data.get("identitas", {})
+    alamat = school_data.get("alamat", {})
+    statistik = school_data.get("statistik", {})
+    legalitas = school_data.get("legalitas", {})
+
+    if "alamat" in prompt:
+        return f"Alamat {identitas.get('nama_sekolah')} adalah {alamat.get('jalan')}, Kec. {alamat.get('kecamatan')}, Kab. {alamat.get('kabupaten')}, Prov. {alamat.get('provinsi')}."
+
+    if "npsn" in prompt:
+        return f"NPSN {identitas.get('nama_sekolah')} adalah {identitas.get('npsn')}."
+
+    if "jumlah siswa" in prompt:
+        return f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total')} siswa."
+
+    if "visi" in prompt:
+        return f"Visi: {school_data.get('visi')}"
+
+    if "misi" in prompt:
+        text = "Misi Sekolah:<br>"
+        for m in school_data.get("misi", []):
+            text += f"• {m}<br>"
+        return text
+
+    if "berdiri" in prompt or "umur" in prompt:
+        tanggal = legalitas.get("sk_pendirian", {}).get("tanggal")
+        if tanggal:
+            tahun = datetime.strptime(tanggal, "%Y-%m-%d").year
+            umur = datetime.now().year - tahun
+            return f"{identitas.get('nama_sekolah')} berdiri sejak {tahun} dan saat ini berusia {umur} tahun."
+
+    return None
+
+# ==============================
+# GURU - JABATAN
+# ==============================
+def find_teacher_by_position(prompt):
+    prompt = normalize(prompt)
+    for t in teachers:
+        jabatan = t.get("jabatan")
+        if jabatan and normalize(jabatan) in prompt:
+            return f"{jabatan} adalah {t.get('nama')}."
+    return None
+
+# ==============================
+# WAKA SMART
+# ==============================
+def find_waka(prompt):
+    prompt = normalize(prompt)
+    waka_list = []
+
+    for t in teachers:
+        jabatan = t.get("jabatan")
+        if jabatan and "waka" in jabatan.lower():
+
+            if normalize(jabatan) in prompt:
+                return f"{jabatan} adalah {t.get('nama')}."
+
+            if prompt.strip() == "waka":
+                waka_list.append(f"• {jabatan} - {t.get('nama')}")
+
+    if waka_list:
+        text = "<b>Daftar Wakil Kepala Sekolah:</b><br><br>"
+        for w in waka_list:
+            text += w + "<br>"
+        return text
+
+    return None
+
+# ==============================
+# GURU - MAPEL
 # ==============================
 def find_teacher_by_subject(prompt):
     prompt = normalize(prompt)
@@ -162,29 +234,23 @@ def find_teacher_by_subject(prompt):
     return remove_duplicates(results)
 
 # ==============================
-# OSIS SMART MATCH
+# OSIS DINAMIS
 # ==============================
 def find_osis_query(prompt):
     prompt = normalize(prompt)
     inti = osis.get("inti", {})
+    matches = []
 
     for jab, data in inti.items():
         jab_text = jab.replace("_", " ")
         if any(word in prompt for word in jab_text.split()):
-            return f"{jab_text.title()} adalah {data.get('nama')} ({data.get('kelas')})."
+            matches.append((jab_text, data))
 
-    for s in osis.get("seksi", []):
-        nama_seksi = normalize(s.get("nama_seksi", ""))
-
-        if "anggota" in prompt and any(word in prompt for word in nama_seksi.split()):
-            text = f"Anggota Seksi {s.get('nama_seksi')}:<br>"
-            for a in s.get("anggota", []):
-                text += f"• {a.get('nama')} ({a.get('kelas')})<br>"
-            return text
-
-        if any(word in prompt for word in nama_seksi.split()):
-            ketua = s.get("ketua", {})
-            return f"Ketua Seksi {s.get('nama_seksi')} adalah {ketua.get('nama')} ({ketua.get('kelas')})."
+    if matches:
+        text = "<b>Pengurus OSIS:</b><br><br>"
+        for jab_text, data in matches:
+            text += f"• {jab_text.title()}: {data.get('nama')} ({data.get('kelas')})<br>"
+        return text
 
     return None
 
@@ -208,65 +274,18 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     render_user(prompt)
 
-    clean = normalize(prompt)
+    clean_prompt = normalize(prompt)
     reply = None
 
-    identitas = school.get("identitas", {})
-    alamat = school.get("alamat", {})
-    statistik = school.get("statistik", {})
-    legalitas = school.get("legalitas", {})
+    reply = handle_school_profile(prompt)
 
-    # ==========================
-    # SCHOOL INFO
-    # ==========================
-    if "alamat" in clean:
-        reply = f"Alamat sekolah berada di {alamat.get('jalan')}, Kecamatan {alamat.get('kecamatan')}, Kabupaten {alamat.get('kabupaten')}, Provinsi {alamat.get('provinsi')}."
-
-    elif "npsn" in clean:
-        reply = f"NPSN adalah {identitas.get('npsn')}."
-
-    elif "jumlah siswa" in clean:
-        reply = f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total')} siswa."
-
-    elif "kelas 10" in clean:
-        reply = f"Jumlah siswa kelas 10 adalah {statistik.get('per_tingkat', {}).get('kelas_10')} siswa."
-
-    elif "kelas 11" in clean:
-        reply = f"Jumlah siswa kelas 11 adalah {statistik.get('per_tingkat', {}).get('kelas_11')} siswa."
-
-    elif "kelas 12" in clean:
-        reply = f"Jumlah siswa kelas 12 adalah {statistik.get('per_tingkat', {}).get('kelas_12')} siswa."
-
-    elif "berdiri" in clean:
-        tanggal = legalitas.get("sk_pendirian", {}).get("tanggal")
-        if tanggal:
-            tahun = datetime.strptime(tanggal, "%Y-%m-%d").year
-            umur = datetime.now().year - tahun
-            reply = f"Sekolah berdiri pada tahun {tahun} dan saat ini berusia {umur} tahun."
-
-    # ==========================
-    # LIST GURU
-    # ==========================
-    if reply is None and "daftar guru" in clean:
-        text = "<b>Daftar Guru:</b><br><br>"
-        for t in teachers:
-            text += f"• {t.get('nama')}<br>"
-        reply = text
-
-    # ==========================
-    # WAKA
-    # ==========================
-    if reply is None and "waka" in clean:
-        text = "<b>Daftar Wakil Kepala Sekolah:</b><br><br>"
-        for t in teachers:
-            if t.get("jabatan") and "waka" in t.get("jabatan","").lower():
-                text += f"• {t.get('jabatan')} - {t.get('nama')}<br>"
-        reply = text
-
-    # ==========================
-    # MAPEL
-    # ==========================
     if reply is None:
+        reply = find_teacher_by_position(prompt)
+
+    if reply is None:
+        reply = find_waka(prompt)
+
+    if reply is None and any(k in clean_prompt for k in ["siapa", "guru", "pengampu", "mengajar"]):
         subject_matches = find_teacher_by_subject(prompt)
         if subject_matches:
             text = "<b>Guru Pengampu:</b><br><br>"
@@ -274,16 +293,11 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
                 text += f"• {t.get('nama')}<br>"
             reply = text
 
-    # ==========================
-    # OSIS
-    # ==========================
     if reply is None:
         reply = find_osis_query(prompt)
 
-    # ==========================
-    # AI FALLBACK
-    # ==========================
     if reply is None:
+    with st.spinner("AI sedang mengetik..."):
         completion = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
