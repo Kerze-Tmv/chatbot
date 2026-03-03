@@ -177,11 +177,31 @@ def find_teacher_by_subject(prompt):
     prompt = normalize(prompt)
     results = []
 
+    # keyword khusus agama
+    agama_keywords = {
+        "islam": "pendidikan agama islam",
+        "kristen": "agama kristen",
+        "katolik": "agama katolik",
+        "buddha": "agama buddha",
+    }
+
     for t in teachers:
         for m in t.get("mapel", []):
-            subject_words = normalize(m).split()
+            subject = normalize(m)
 
-            # Jika salah satu kata subject ada di prompt
+            # ====== PRIORITAS 1: Exact full subject ======
+            if subject in prompt:
+                results.append(t)
+                break
+
+            # ====== PRIORITAS 2: AGAMA SPESIFIK ======
+            for key, full_subject in agama_keywords.items():
+                if key in prompt and full_subject in subject:
+                    results.append(t)
+                    break
+
+            # ====== PRIORITAS 3: Kata umum (match per kata) ======
+            subject_words = subject.split()
             if any(word in prompt for word in subject_words):
                 results.append(t)
                 break
