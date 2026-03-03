@@ -1,0 +1,32 @@
+{
+  "identitas": {
+    "nama_sekolah": "SMAN 1 TUNJUNGAN",
+    "npsn": "20314894",
+    "status": "Negeri",
+    "bentuk_pendidikan": "SMA",
+    "status_kepemilikan": "Pemerintah Daerah"
+  },
+  "legalitas": {
+    "sk_pendirian": {
+      "nomor": "420/846/2025",
+      "tanggal": "1991-07-15"
+    },
+    "sk_izin_operasional": {
+      "tanggal": "1991-07-15"
+    }
+  },
+  "alamat": {
+    "jalan": "Jl. Gatot Subroto KM. 4",
+    "kecamatan": "Tunjungan",
+    "kabupaten": "Blora",
+    "provinsi": "Jawa Tengah"
+  },
+  "statistik": {
+    "jumlah_siswa_total": 1021,
+    "per_tingkat": {
+      "kelas_10": 387,
+      "kelas_11": 313,
+      "kelas_12": 321
+    }
+  }
+}
