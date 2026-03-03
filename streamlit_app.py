@@ -29,6 +29,9 @@ with open("teachers.json", "r", encoding="utf-8") as f:
 with open("school_profile.json", "r", encoding="utf-8") as f:
     school_data = json.load(f)
 
+with open("osis.json", "r", encoding="utf-8") as f:
+    osis_data = json.load(f)["osis"]   # ROOT KEY FIXED
+
 # ==============================
 # HELPER FUNCTIONS
 # ==============================
@@ -178,6 +181,51 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 <b>Mata Pelajaran:</b>
 <ul>{mapel_list}</ul>
 """
+
+    # ==============================
+    # OSIS INTI
+    # ==============================
+    elif "inti osis" in clean_prompt:
+        list_html = "".join([
+            f"<li><b>{i['jabatan']}</b> - {i['nama']}</li>"
+            for i in osis_data["inti"]
+        ])
+        reply = f"<b>Pengurus Inti OSIS {osis_data['periode']}:</b><ul>{list_html}</ul>"
+
+    # ==============================
+    # LIST SEKSI
+    # ==============================
+    elif "list seksi" in clean_prompt:
+        list_html = "".join([
+            f"<li>{s['nama_seksi']}</li>"
+            for s in osis_data["seksi"]
+        ])
+        reply = f"<b>Daftar Seksi OSIS:</b><ul>{list_html}</ul>"
+
+    # ==============================
+    # DETAIL SEKSI
+    # ==============================
+    elif "seksi" in clean_prompt:
+        for seksi in osis_data["seksi"]:
+            if seksi["nama_seksi"].lower() in clean_prompt:
+                anggota_list = "".join([f"<li>{a}</li>" for a in seksi["anggota"]])
+                reply = f"""
+<b>{seksi['nama_seksi']}</b><br>
+Ketua: {seksi['ketua']}
+<br><br>
+<b>Anggota:</b>
+<ul>{anggota_list}</ul>
+"""
+                st.image(seksi["foto"], width=200)
+                break
+
+    # ==============================
+    # PEMBINA OSIS
+    # ==============================
+    elif "pembina osis" in clean_prompt:
+        p = osis_data["pembina"]
+        reply = f"<b>Pembina OSIS</b><br>{p['nama']}"
+        st.image(p["foto"], width=200)
 
     # ==============================
     # FALLBACK AI
