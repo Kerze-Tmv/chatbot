@@ -47,6 +47,17 @@ def normalize(text):
 def format_bullet_list(items):
     return "\n".join([f"- {item}" for item in items])
 
+def list_all_teachers():
+    teacher_list = []
+    for teacher in teachers:
+        nama = teacher.get("nama", "-")
+        jabatan = teacher.get("jabatan", "")
+        if jabatan:
+            teacher_list.append(f"{nama} ({jabatan})")
+        else:
+            teacher_list.append(nama)
+    return teacher_list
+
 def find_teacher_by_name(prompt):
     for teacher in teachers:
         if normalize(teacher.get("nama", "")) in prompt:
@@ -59,9 +70,9 @@ def find_teacher_by_name(prompt):
 def find_all_waka():
     waka_list = []
     for teacher in teachers:
-        jabatan = teacher.get("jabatan", "")
-        if jabatan and "waka" in jabatan.lower():
-            waka_list.append(f"{jabatan} - {teacher.get('nama','')}")
+        jabatan = teacher.get("jabatan", "").lower()
+        if "waka" in jabatan or "wakil kepala" in jabatan:
+            waka_list.append(f"{teacher.get('jabatan')} - {teacher.get('nama')}")
     return waka_list
 
 def find_teacher_by_subject(prompt):
@@ -102,18 +113,21 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     clean_prompt = normalize(prompt)
     reply = None
 
-    # ==========================
-    # LOGIKA LOKAL
-    # ==========================
-    if "guru" in clean_prompt and "ganteng" in clean_prompt:
-        reply = "Guru paling ganteng adalah Pak Dhimas 😎"
-
     identitas = school_data.get("identitas", {})
     alamat = school_data.get("alamat", {})
     statistik = school_data.get("statistik", {})
     legalitas = school_data.get("legalitas", {})
     osis = school_data.get("osis", {})
 
+    # ==========================
+    # FUN
+    # ==========================
+    if "guru" in clean_prompt and "ganteng" in clean_prompt:
+        reply = "Guru paling ganteng adalah Pak Dhimas 😎"
+
+    # ==========================
+    # DATA SEKOLAH
+    # ==========================
     if reply is None:
 
         if "alamat" in clean_prompt:
@@ -129,12 +143,19 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         elif "jumlah siswa" in clean_prompt:
             reply = f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total','-')} siswa."
 
-        elif "waka" in clean_prompt:
+        elif any(k in clean_prompt for k in ["waka", "wakil kepala"]):
             waka_list = find_all_waka()
             if waka_list:
                 reply = "## Daftar Wakil Kepala Sekolah\n" + format_bullet_list(waka_list)
             else:
-                reply = "Data Wakil Kepala Sekolah tidak tersedia."
+                reply = "Data Wakil Kepala Sekolah tidak ditemukan."
+
+        elif any(k in clean_prompt for k in ["daftar guru", "list guru", "semua guru", "guru apa saja"]):
+            teacher_list = list_all_teachers()
+            if teacher_list:
+                reply = "## Daftar Guru\n" + format_bullet_list(teacher_list)
+            else:
+                reply = "Data guru tidak tersedia."
 
         elif "osis" in clean_prompt:
             if osis:
@@ -169,6 +190,9 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             else:
                 reply = "Data OSIS tidak tersedia."
 
+    # ==========================
+    # CARI 1 GURU
+    # ==========================
     if reply is None:
         teacher_match = find_teacher_by_name(clean_prompt)
         if teacher_match:
@@ -177,6 +201,9 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             mapel = ", ".join(teacher_match.get("mapel", []))
             reply = f"{teacher_match.get('nama')}{jabatan_text} mengampu: {mapel}."
 
+    # ==========================
+    # GURU PER MAPEL
+    # ==========================
     if reply is None:
         subject_matches = find_teacher_by_subject(clean_prompt)
         if subject_matches:
