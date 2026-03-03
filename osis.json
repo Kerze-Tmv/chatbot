@@ -1,72 +1,147 @@
 {
   "osis": {
     "periode": "2025/2026",
-    "pembina": {
-      "nama": "Nama Pembina OSIS",
-      "foto": "assets/osis/pembina.jpg"
-    },
-    "inti": [
-      {
-        "jabatan": "Ketua OSIS",
-        "nama": "Nama Ketua",
-        "foto": "assets/osis/ketua.jpg"
+    "inti": {
+      "ketua_umum": {
+        "nama": "Alifvia Najwa Ummahani",
+        "kelas": "XI-1"
       },
-      {
-        "jabatan": "Wakil Ketua OSIS",
-        "nama": "Nama Wakil",
-        "foto": "assets/osis/wakil.jpg"
+      "wakil_ketua": {
+        "nama": "Fawwaz Fadila Athoila",
+        "kelas": "XI-5"
       },
-      {
-        "jabatan": "Sekretaris",
-        "nama": "Nama Sekretaris",
-        "foto": "assets/osis/sekretaris.jpg"
+      "ketua_harian": {
+        "nama": "Milsha Wafa Thahirah S.",
+        "kelas": "X-10"
       },
-      {
-        "jabatan": "Bendahara",
-        "nama": "Nama Bendahara",
-        "foto": "assets/osis/bendahara.jpg"
+      "sekretaris_umum": {
+        "nama": "Nafaira Arsyi",
+        "kelas": "XI-3"
+      },
+      "wakil_sekretaris": {
+        "nama": "Juanita Harina P.",
+        "kelas": "X-8"
+      },
+      "bendahara_umum": {
+        "nama": "Siti Anisa Rahmawati",
+        "kelas": "XI-5"
+      },
+      "wakil_bendahara": {
+        "nama": "Fatan Yota Wibowo",
+        "kelas": "X-2"
       }
-    ],
+    },
     "seksi": [
       {
-        "nama_seksi": "Seksi Perlengkapan",
-        "ketua": "Nama Ketua Seksi",
+        "nama_seksi": "Pembinaan Keimanan dan Ketaqwaan kepada Tuhan Yang Maha Esa",
+        "ketua": {
+          "nama": "Nailla Andjani Wijaya",
+          "kelas": "XI-3"
+        },
         "anggota": [
-          "Anggota 1",
-          "Anggota 2"
-        ],
-        "foto": "assets/osis/perlengkapan.jpg"
+          { "nama": "Adelia Zaimatunisa", "kelas": "X-1" },
+          { "nama": "Zahraihana Fadhil L.", "kelas": "X-2" }
+        ]
       },
       {
-        "nama_seksi": "Seksi Keagamaan",
-        "ketua": "Nama Ketua Seksi",
+        "nama_seksi": "Pembinaan Budi Pekerti Luhur atau Akhlak Mulia",
+        "ketua": {
+          "nama": "Mirza Arsyad Rahardian",
+          "kelas": "XI-3"
+        },
         "anggota": [
-          "Anggota 1",
-          "Anggota 2"
-        ],
-        "foto": "assets/osis/keagamaan.jpg"
+          { "nama": "Ahmad Fahri B.", "kelas": "XI-6" },
+          { "nama": "Natasya Famela Dwi M.", "kelas": "X-8" }
+        ]
       },
       {
-        "nama_seksi": "Seksi Olahraga",
-        "ketua": "Nama Ketua Seksi",
+        "nama_seksi": "Pembinaan Kepribadian Unggul, Wawasan Kebangsaan, dan Bela Negara",
+        "ketua": {
+          "nama": "Muhammad Brian Prima",
+          "kelas": "X-7"
+        },
         "anggota": [
-          "Anggota 1",
-          "Anggota 2"
-        ],
-        "foto": "assets/osis/olahraga.jpg"
+          { "nama": "Destita Alifia Putri T.", "kelas": "X-1" },
+          { "nama": "Alfahri Akbar Keyza", "kelas": "X-10" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Prestasi Akademik dan/atau Olahraga sesuai Bakat dan Minat",
+        "ketua": {
+          "nama": "Claura Almeira R.A",
+          "kelas": "X-1"
+        },
+        "anggota": [
+          { "nama": "Arsyadeva Adhilla D.", "kelas": "XI-6" },
+          { "nama": "Shena Budi Wicaksono Hutama", "kelas": "X-1" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Demokrasi, HAM, Pendidikan Politik, Lingkungan Hidup, Kepekaan dan Toleransi Sosial",
+        "ketua": {
+          "nama": "Siti Oktavia",
+          "kelas": "XI-2"
+        },
+        "anggota": [
+          { "nama": "Davino Septian", "kelas": "X-9" },
+          { "nama": "Priska Putri", "kelas": "X-6" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Kreativitas, Keterampilan, dan Kewirausahaan",
+        "ketua": {
+          "nama": "Pratama Abdi Satya",
+          "kelas": "XI-5"
+        },
+        "anggota": [
+          { "nama": "Adinda Natasya", "kelas": "X-5" },
+          { "nama": "Yola Putriana Zahra", "kelas": "X-10" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Kualitas Jasmani, Kesehatan dan Gizi",
+        "ketua": {
+          "nama": "Muhammad Nabil Putra Pamungkas",
+          "kelas": "XI-4"
+        },
+        "anggota": [
+          { "nama": "Naizhar Hakam A.", "kelas": "X-5" },
+          { "nama": "Tyara Anggraini", "kelas": "X-10" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Sastra dan Budaya",
+        "ketua": {
+          "nama": "Dewangga Anjanisrina",
+          "kelas": "XI-5"
+        },
+        "anggota": [
+          { "nama": "Alya Az Zahra Adistya", "kelas": "X-1" },
+          { "nama": "Juanita Duta Hanawati", "kelas": "X-2" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Teknologi Informasi dan Komunikasi",
+        "ketua": {
+          "nama": "Aisyah Yumnaida Rachman",
+          "kelas": "XI-6"
+        },
+        "anggota": [
+          { "nama": "Elok Syafa Aulia", "kelas": "XI-3" },
+          { "nama": "Kaisila Rizqa Rayani", "kelas": "X-4" }
+        ]
+      },
+      {
+        "nama_seksi": "Pembinaan Komunikasi dalam Bahasa",
+        "ketua": {
+          "nama": "Anggi Tasya Pambayun",
+          "kelas": "XI-6"
+        },
+        "anggota": [
+          { "nama": "Putri Aulia Madina", "kelas": "X-3" },
+          { "nama": "Nanda Azzahra", "kelas": "X-1" }
+        ]
       }
-    ],
-    "media_sosial": {
-      "instagram": "@osis_sman1",
-      "youtube": "OSIS SMAN 1"
-    },
-    "visi_misi": {
-      "visi": "Menjadikan OSIS sebagai wadah pengembangan karakter dan kepemimpinan siswa.",
-      "misi": [
-        "Meningkatkan partisipasi siswa dalam kegiatan sekolah.",
-        "Membangun budaya disiplin dan tanggung jawab.",
-        "Mengembangkan kreativitas dan inovasi siswa."
-      ]
-    }
+    ]
   }
 }
