@@ -4,7 +4,238 @@ import base64
 import json
 import re
 from datetime import datetime
+import streamlit as st
+from openai import OpenAI
+import base64
+import json
+import re
+from datetime import datetime
 
+# ==============================
+# CONFIG
+# ==============================
+st.set_page_config(
+    page_title="SMAN 1 TUNJUNGAN - Chatbot AI",
+    page_icon="🎓",
+    layout="wide",
+)
+
+client = OpenAI(
+    api_key=st.secrets["GROQ_API_KEY"],
+    base_url="https://api.groq.com/openai/v1"
+)
+
+MODEL_NAME = "llama-3.1-8b-instant"
+
+# ==============================
+# LOAD DATA
+# ==============================
+with open("teachers.json", "r", encoding="utf-8") as f:
+    teachers = json.load(f)["guru"]
+
+with open("school_profile.json", "r", encoding="utf-8") as f:
+    school_data = json.load(f)
+
+with open("osis.json", "r", encoding="utf-8") as f:
+    osis_data = json.load(f)["osis"]
+
+# ==============================
+# HELPER FUNCTIONS
+# ==============================
+def normalize(text):
+    text = text.lower()
+    text = re.sub(r"[^\w\s]", " ", text)
+    return text.strip()
+
+def find_teacher_by_name(prompt):
+    for teacher in teachers:
+        if normalize(teacher["nama"]) in prompt:
+            return teacher
+        for alias in teacher["alias"]:
+            if alias in prompt:
+                return teacher
+    return None
+
+def find_by_jabatan(prompt):
+    for teacher in teachers:
+        if teacher["jabatan"] and teacher["jabatan"].lower() in prompt:
+            return teacher
+    return None
+
+def find_all_waka():
+    return [
+        f"<li><b>{t['jabatan']}</b> - {t['nama']}</li>"
+        for t in teachers
+        if t["jabatan"] and "waka" in t["jabatan"].lower()
+    ]
+
+def find_teacher_by_subject(prompt):
+    matches = []
+    for teacher in teachers:
+        for subject in teacher["mapel"]:
+            pattern = r"\b" + re.escape(subject.lower()) + r"\b"
+            if re.search(pattern, prompt):
+                matches.append(teacher)
+                break
+    return matches
+
+def find_osis_by_jabatan(prompt):
+    for anggota in osis_data:
+        if anggota["jabatan"].lower() in prompt:
+            return anggota
+    return None
+
+# ==============================
+# UI STYLE
+# ==============================
+st.markdown("""
+<style>
+.stApp { background: #f8fafc; font-family: 'Segoe UI'; }
+.chat-bubble {
+    padding: 14px 18px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+}
+.user { background: #2563eb; color: white; }
+.bot { background: white; border: 1px solid #e2e8f0; }
+</style>
+""", unsafe_allow_html=True)
+
+# ==============================
+# SESSION
+# ==============================
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# ==============================
+# DISPLAY CHAT
+# ==============================
+for i, msg in enumerate(st.session_state.messages):
+
+    if msg["role"] == "user":
+        st.markdown(
+            f"<div class='chat-bubble user'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
+
+    else:
+        st.markdown(
+            f"<div class='chat-bubble bot'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
+
+        # COPY STABLE
+        st.code(msg["content"], language="markdown")
+
+# ==============================
+# INPUT
+# ==============================
+if prompt := st.chat_input("Tulis pertanyaan Anda..."):
+
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    clean_prompt = normalize(prompt)
+    reply = None
+
+    # ==============================
+    # DATA SEKOLAH
+    # ==============================
+    if "alamat" in clean_prompt:
+        alamat = school_data["alamat"]
+        reply = f"""
+<b>Alamat Sekolah:</b>
+<ul>
+<li>{alamat['jalan']}</li>
+<li>Kecamatan: {alamat['kecamatan']}</li>
+<li>Kabupaten: {alamat['kabupaten']}</li>
+<li>Provinsi: {alamat['provinsi']}</li>
+</ul>
+"""
+
+    elif "npsn" in clean_prompt:
+        reply = f"NPSN adalah <b>{school_data['identitas']['npsn']}</b>."
+
+    elif "jumlah siswa" in clean_prompt and "per tingkat" not in clean_prompt:
+        reply = f"Jumlah total siswa adalah <b>{school_data['statistik']['jumlah_siswa_total']}</b> siswa."
+
+    elif "per tingkat" in clean_prompt:
+        tingkat = school_data["statistik"]["per_tingkat"]
+        reply = f"""
+<b>Jumlah Siswa per Tingkat:</b>
+<ul>
+<li>Kelas 10: {tingkat['kelas_10']} siswa</li>
+<li>Kelas 11: {tingkat['kelas_11']} siswa</li>
+<li>Kelas 12: {tingkat['kelas_12']} siswa</li>
+</ul>
+"""
+
+    elif "umur" in clean_prompt:
+        tahun_berdiri = datetime.strptime(
+            school_data["legalitas"]["sk_pendirian"]["tanggal"],
+            "%Y-%m-%d"
+        ).year
+        umur = datetime.now().year - tahun_berdiri
+        reply = f"SMAN 1 TUNJUNGAN berdiri sejak {tahun_berdiri} dan saat ini berusia <b>{umur}</b> tahun."
+
+    # ==============================
+    # WAKA
+    # ==============================
+    elif "waka" in clean_prompt:
+        waka_list = find_all_waka()
+        reply = f"<b>Daftar Wakil Kepala Sekolah:</b><ul>{''.join(waka_list)}</ul>"
+
+    # ==============================
+    # GURU PER MAPEL
+    # ==============================
+    elif find_teacher_by_subject(clean_prompt):
+        subject_matches = find_teacher_by_subject(clean_prompt)
+        list_html = "".join([f"<li>{t['nama']}</li>" for t in subject_matches])
+        reply = f"<b>Guru yang mengampu:</b><ul>{list_html}</ul>"
+
+    # ==============================
+    # DETAIL GURU
+    # ==============================
+    elif find_teacher_by_name(clean_prompt):
+        teacher = find_teacher_by_name(clean_prompt)
+        mapel_list = "".join([f"<li>{m}</li>" for m in teacher["mapel"]])
+        jabatan = f" ({teacher['jabatan']})" if teacher["jabatan"] else ""
+        reply = f"""
+<b>{teacher['nama']}{jabatan}</b>
+<br><br>
+<b>Mata Pelajaran:</b>
+<ul>{mapel_list}</ul>
+"""
+
+    # ==============================
+    # OSIS
+    # ==============================
+    elif "osis" in clean_prompt and "list" in clean_prompt:
+        list_html = "".join(
+            [f"<li><b>{a['jabatan']}</b> - {a['nama']}</li>" for a in osis_data]
+        )
+        reply = f"<b>Struktur OSIS:</b><ul>{list_html}</ul>"
+
+    elif find_osis_by_jabatan(clean_prompt):
+        anggota = find_osis_by_jabatan(clean_prompt)
+        reply = f"<b>{anggota['jabatan']}</b><br>{anggota['nama']}"
+        st.image(anggota["foto"], width=200)
+
+    # ==============================
+    # FALLBACK AI
+    # ==============================
+    if reply is None:
+        completion = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            max_tokens=400,
+        )
+        reply = completion.choices[0].message.content
+
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    st.rerun()
 # ==============================
 # CONFIG
 # ==============================
