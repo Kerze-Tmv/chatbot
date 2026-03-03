@@ -181,7 +181,7 @@ def find_teacher_by_position(prompt):
     return None
 
 # ==============================
-# WAKA SMART
+# WAKA
 # ==============================
 def find_waka(prompt):
     prompt = normalize(prompt)
@@ -234,7 +234,7 @@ def find_teacher_by_subject(prompt):
     return remove_duplicates(results)
 
 # ==============================
-# OSIS DINAMIS
+# OSIS
 # ==============================
 def find_osis_query(prompt):
     prompt = normalize(prompt)
@@ -297,7 +297,32 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         reply = find_osis_query(prompt)
 
     if reply is None:
-    with st.spinner("AI sedang mengetik..."):
+
+        thinking = st.empty()
+
+        thinking.markdown(f"""
+        <div class="chat-row bot">
+            <img src="data:image/png;base64,{logo_base64}" class="logo">
+            <div class="bubble bot-bubble">
+                🤖 AI sedang berpikir<span class="dots"></span>
+            </div>
+        </div>
+
+        <style>
+        .dots::after {{
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }}
+        @keyframes dots {{
+            0% {{ content: ''; }}
+            25% {{ content: '.'; }}
+            50% {{ content: '..'; }}
+            75% {{ content: '...'; }}
+            100% {{ content: ''; }}
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+
         completion = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
@@ -306,7 +331,10 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             ],
             temperature=0.2,
         )
+
         reply = completion.choices[0].message.content
+
+        thinking.empty()
 
     render_bot(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
