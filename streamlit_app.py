@@ -3,6 +3,7 @@ from openai import OpenAI
 import base64
 import json
 import re
+from datetime import datetime
 
 # ==============================
 # CONFIG
@@ -21,12 +22,13 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
-# LOAD JSON DATABASE
+# LOAD JSON FILES
 # ==============================
 with open("teachers.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
+    teachers = json.load(f)["guru"]
 
-teachers = data["guru"]
+with open("school_profile.json", "r", encoding="utf-8") as f:
+    school_data = json.load(f)
 
 # ==============================
 # HELPER FUNCTIONS
@@ -47,9 +49,8 @@ def find_teacher_by_name(prompt):
 
 def find_by_jabatan(prompt):
     for teacher in teachers:
-        if teacher["jabatan"]:
-            if teacher["jabatan"].lower() in prompt:
-                return teacher
+        if teacher["jabatan"] and teacher["jabatan"].lower() in prompt:
+            return teacher
     return None
 
 def find_all_waka():
@@ -59,7 +60,6 @@ def find_all_waka():
             waka_list.append(f"{teacher['jabatan']} - {teacher['nama']}")
     return waka_list
 
-# 🔥 FIXED SUBJECT MATCHING (NO DOUBLE)
 def find_teacher_by_subject(prompt):
     matches = []
     for teacher in teachers:
@@ -142,7 +142,7 @@ header, #MainMenu, footer {{ visibility: hidden; }}
 """, unsafe_allow_html=True)
 
 # ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -169,26 +169,71 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     reply = None
 
     # ==============================
-    # FUN RULE
+    # FUN
     # ==============================
     if "guru" in clean_prompt and "ganteng" in clean_prompt:
         reply = "Guru paling ganteng adalah Pak Dhimas 😎"
 
     # ==============================
-    # CEK SEMUA WAKA
+    # DATA SEKOLAH
     # ==============================
     if reply is None:
-        if "waka" in clean_prompt and (
-            "siapa" in clean_prompt or 
-            "daftar" in clean_prompt or 
-            "semua" in clean_prompt
-        ):
+
+        if "alamat" in clean_prompt:
+            alamat = school_data["alamat"]
+            reply = (
+                f"Alamat {school_data['identitas']['nama_sekolah']} adalah "
+                f"{alamat['jalan']}, Kec. {alamat['kecamatan']}, "
+                f"Kab. {alamat['kabupaten']}, Prov. {alamat['provinsi']}."
+            )
+
+        elif "npsn" in clean_prompt:
+            reply = f"NPSN {school_data['identitas']['nama_sekolah']} adalah {school_data['identitas']['npsn']}."
+
+        elif "jumlah siswa" in clean_prompt or "total siswa" in clean_prompt:
+            total = school_data["statistik"]["jumlah_siswa_total"]
+            reply = f"Jumlah total siswa adalah {total} siswa."
+
+        elif "kelas 10" in clean_prompt:
+            reply = f"Jumlah siswa kelas 10 adalah {school_data['statistik']['per_tingkat']['kelas_10']} siswa."
+
+        elif "kelas 11" in clean_prompt:
+            reply = f"Jumlah siswa kelas 11 adalah {school_data['statistik']['per_tingkat']['kelas_11']} siswa."
+
+        elif "kelas 12" in clean_prompt:
+            reply = f"Jumlah siswa kelas 12 adalah {school_data['statistik']['per_tingkat']['kelas_12']} siswa."
+
+        elif "sk pendirian" in clean_prompt:
+            sk = school_data["legalitas"]["sk_pendirian"]
+            reply = f"SK Pendirian Nomor {sk['nomor']} tanggal {sk['tanggal']}."
+
+        elif "izin operasional" in clean_prompt:
+            izin = school_data["legalitas"]["sk_izin_operasional"]
+            reply = f"Tanggal SK Izin Operasional adalah {izin['tanggal']}."
+
+        elif "umur" in clean_prompt or "berdiri sejak" in clean_prompt:
+            tanggal_str = school_data["legalitas"]["sk_pendirian"]["tanggal"]
+            tanggal_berdiri = datetime.strptime(tanggal_str, "%Y-%m-%d")
+            tahun_sekarang = datetime.now().year
+            umur = tahun_sekarang - tanggal_berdiri.year
+
+            reply = (
+                f"{school_data['identitas']['nama_sekolah']} berdiri sejak "
+                f"{tanggal_berdiri.year} dan pada tahun {tahun_sekarang} "
+                f"berusia {umur} tahun."
+            )
+
+    # ==============================
+    # WAKA
+    # ==============================
+    if reply is None:
+        if "waka" in clean_prompt:
             waka_list = find_all_waka()
             if waka_list:
                 reply = "Berikut daftar Wakil Kepala Sekolah:\n\n" + "\n".join(waka_list)
 
     # ==============================
-    # CEK JABATAN SPESIFIK
+    # JABATAN SPESIFIK
     # ==============================
     if reply is None:
         jabatan_match = find_by_jabatan(clean_prompt)
@@ -196,7 +241,7 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             reply = f"{jabatan_match['jabatan']} adalah {jabatan_match['nama']}."
 
     # ==============================
-    # CEK NAMA GURU
+    # NAMA GURU
     # ==============================
     if reply is None:
         teacher_match = find_teacher_by_name(clean_prompt)
@@ -205,7 +250,7 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             reply = f"{teacher_match['nama']}{jabatan} mengampu: {', '.join(teacher_match['mapel'])}."
 
     # ==============================
-    # CEK MAPEL
+    # MAPEL
     # ==============================
     if reply is None:
         subject_matches = find_teacher_by_subject(clean_prompt)
@@ -226,7 +271,6 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
                         "content": """
 Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN.
 Nama sekolah WAJIB ditulis: SMAN 1 TUNJUNGAN.
-JANGAN PERNAH menulis Tunjunggan.
 Jawab dalam Bahasa Indonesia yang sopan dan profesional.
 """
                     },
@@ -237,7 +281,6 @@ Jawab dalam Bahasa Indonesia yang sopan dan profesional.
             )
 
             reply = completion.choices[0].message.content
-            reply = reply.replace("Tunjunggan", "TUNJUNGAN")
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
     st.markdown(
