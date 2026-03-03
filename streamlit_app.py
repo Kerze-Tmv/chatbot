@@ -22,7 +22,7 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
-# LOAD JSON FILES
+# LOAD DATA
 # ==============================
 with open("teachers.json", "r", encoding="utf-8") as f:
     teachers = json.load(f)["guru"]
@@ -57,7 +57,7 @@ def find_all_waka():
     waka_list = []
     for teacher in teachers:
         if teacher["jabatan"] and "waka" in teacher["jabatan"].lower():
-            waka_list.append(f"{teacher['jabatan']} - {teacher['nama']}")
+            waka_list.append(f"<b>{teacher['jabatan']}</b> - {teacher['nama']}")
     return waka_list
 
 def find_teacher_by_subject(prompt):
@@ -80,7 +80,7 @@ def get_base64_image(image_path):
 logo_base64 = get_base64_image("logo.png")
 
 # ==============================
-# UI HEADER
+# HEADER + STYLE
 # ==============================
 st.markdown(f"""
 <style>
@@ -126,7 +126,24 @@ header, #MainMenu, footer {{ visibility: hidden; }}
     border: 1px solid #e2e8f0;
     margin-right: auto;
 }}
+
+.copy-btn {{
+    margin-top:8px;
+    padding:4px 10px;
+    border-radius:8px;
+    border:none;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}}
 </style>
+
+<script>
+function copyText(id) {{
+    var text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text);
+}}
+</script>
 
 <div class="fixed-header">
     <div class="header-content">
@@ -147,12 +164,24 @@ header, #MainMenu, footer {{ visibility: hidden; }}
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-for msg in st.session_state.messages:
+for i, msg in enumerate(st.session_state.messages):
     role_class = "user" if msg["role"] == "user" else "bot"
-    st.markdown(
-        f"<div class='chat-bubble {role_class}'>{msg['content']}</div>",
-        unsafe_allow_html=True
-    )
+
+    if msg["role"] == "assistant":
+        st.markdown(
+            f"""
+            <div class='chat-bubble {role_class}'>
+                <div id='msg_{i}'>{msg['content']}</div>
+                <button class='copy-btn' onclick="copyText('msg_{i}')">📋 Copy</button>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            f"<div class='chat-bubble {role_class}'>{msg['content']}</div>",
+            unsafe_allow_html=True
+        )
 
 # ==============================
 # INPUT
@@ -160,25 +189,15 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.markdown(
-        f"<div class='chat-bubble user'>{prompt}</div>",
-        unsafe_allow_html=True
-    )
-
     clean_prompt = normalize(prompt)
     reply = None
 
-    # ==============================
     # FUN
-    # ==============================
     if "guru" in clean_prompt and "ganteng" in clean_prompt:
         reply = "Guru paling ganteng adalah Pak Dhimas 😎"
 
-    # ==============================
     # DATA SEKOLAH
-    # ==============================
     if reply is None:
-
         if "alamat" in clean_prompt:
             alamat = school_data["alamat"]
             reply = (
@@ -191,8 +210,7 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
             reply = f"NPSN {school_data['identitas']['nama_sekolah']} adalah {school_data['identitas']['npsn']}."
 
         elif "jumlah siswa" in clean_prompt or "total siswa" in clean_prompt:
-            total = school_data["statistik"]["jumlah_siswa_total"]
-            reply = f"Jumlah total siswa adalah {total} siswa."
+            reply = f"Jumlah total siswa adalah {school_data['statistik']['jumlah_siswa_total']} siswa."
 
         elif "kelas 10" in clean_prompt:
             reply = f"Jumlah siswa kelas 10 adalah {school_data['statistik']['per_tingkat']['kelas_10']} siswa."
@@ -203,87 +221,55 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         elif "kelas 12" in clean_prompt:
             reply = f"Jumlah siswa kelas 12 adalah {school_data['statistik']['per_tingkat']['kelas_12']} siswa."
 
-        elif "sk pendirian" in clean_prompt:
-            sk = school_data["legalitas"]["sk_pendirian"]
-            reply = f"SK Pendirian Nomor {sk['nomor']} tanggal {sk['tanggal']}."
-
-        elif "izin operasional" in clean_prompt:
-            izin = school_data["legalitas"]["sk_izin_operasional"]
-            reply = f"Tanggal SK Izin Operasional adalah {izin['tanggal']}."
-
         elif "umur" in clean_prompt or "berdiri sejak" in clean_prompt:
             tanggal_str = school_data["legalitas"]["sk_pendirian"]["tanggal"]
-            tanggal_berdiri = datetime.strptime(tanggal_str, "%Y-%m-%d")
+            tahun_berdiri = datetime.strptime(tanggal_str, "%Y-%m-%d").year
             tahun_sekarang = datetime.now().year
-            umur = tahun_sekarang - tanggal_berdiri.year
+            umur = tahun_sekarang - tahun_berdiri
+            reply = f"SMAN 1 TUNJUNGAN berdiri sejak {tahun_berdiri} dan pada tahun {tahun_sekarang} berusia {umur} tahun."
 
-            reply = (
-                f"{school_data['identitas']['nama_sekolah']} berdiri sejak "
-                f"{tanggal_berdiri.year} dan pada tahun {tahun_sekarang} "
-                f"berusia {umur} tahun."
-            )
+    # WAKA LIST
+    if reply is None and "waka" in clean_prompt:
+        waka_list = find_all_waka()
+        if waka_list:
+            list_html = "".join([f"<li>{w}</li>" for w in waka_list])
+            reply = f"<b>Daftar Wakil Kepala Sekolah:</b><ul>{list_html}</ul>"
 
-    # ==============================
-    # WAKA
-    # ==============================
-    if reply is None:
-        if "waka" in clean_prompt:
-            waka_list = find_all_waka()
-            if waka_list:
-                reply = "Berikut daftar Wakil Kepala Sekolah:\n\n" + "\n".join(waka_list)
-
-    # ==============================
-    # JABATAN SPESIFIK
-    # ==============================
+    # JABATAN
     if reply is None:
         jabatan_match = find_by_jabatan(clean_prompt)
         if jabatan_match:
             reply = f"{jabatan_match['jabatan']} adalah {jabatan_match['nama']}."
 
-    # ==============================
     # NAMA GURU
-    # ==============================
     if reply is None:
         teacher_match = find_teacher_by_name(clean_prompt)
         if teacher_match:
             jabatan = f" ({teacher_match['jabatan']})" if teacher_match["jabatan"] else ""
             reply = f"{teacher_match['nama']}{jabatan} mengampu: {', '.join(teacher_match['mapel'])}."
 
-    # ==============================
     # MAPEL
-    # ==============================
     if reply is None:
         subject_matches = find_teacher_by_subject(clean_prompt)
         if subject_matches:
             names = [t["nama"] for t in subject_matches]
             reply = f"Guru yang mengampu mata pelajaran tersebut adalah: {', '.join(names)}."
 
-    # ==============================
     # FALLBACK AI
-    # ==============================
     if reply is None:
-        with st.spinner("AI sedang mengetik..."):
-            completion = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """
-Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN.
-Nama sekolah WAJIB ditulis: SMAN 1 TUNJUNGAN.
-Jawab dalam Bahasa Indonesia yang sopan dan profesional.
-"""
-                    },
-                    *st.session_state.messages
-                ],
-                temperature=0.2,
-                max_tokens=400,
-            )
-
-            reply = completion.choices[0].message.content
+        completion = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN. Jawab sopan dan profesional."
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            max_tokens=400,
+        )
+        reply = completion.choices[0].message.content
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
-    st.markdown(
-        f"<div class='chat-bubble bot'>{reply}</div>",
-        unsafe_allow_html=True
-    )
+    st.rerun()
