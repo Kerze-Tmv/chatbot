@@ -45,11 +45,53 @@ try:
 except:
     school_data = {}
 
+osis = school_data.get("osis", {})
+
 # ==============================
-# STYLE
+# STYLE + FIXED HEADER
 # ==============================
 st.markdown(f"""
 <style>
+header {{visibility:hidden;}}
+
+.fixed-header {{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    z-index: 999;
+}}
+
+.header-logo {{
+    width: 55px;
+}}
+
+.header-text {{
+    display: flex;
+    flex-direction: column;
+}}
+
+.header-title {{
+    font-size: 20px;
+    font-weight: 600;
+}}
+
+.header-sub {{
+    font-size: 13px;
+    color: gray;
+}}
+
+.spacer {{
+    height: 110px;
+}}
+
 .chat-row {{
     display: flex;
     margin-bottom: 15px;
@@ -82,26 +124,26 @@ st.markdown(f"""
 
 .logo {{
     width: 38px;
-    height: 38px;
     margin-right: 10px;
 }}
-
-.header {{
-    text-align: center;
-    margin-bottom: 25px;
-}}
 </style>
-""", unsafe_allow_html=True)
 
-st.markdown("<div class='header'><h2>🎓 SMAN 1 TUNJUNGAN</h2><p style='color:gray;'>Chatbot AI Resmi Sekolah</p></div>", unsafe_allow_html=True)
+<div class="fixed-header">
+    <img src="data:image/png;base64,{logo_base64}" class="header-logo">
+    <div class="header-text">
+        <div class="header-title">SMAN 1 TUNJUNGAN</div>
+        <div class="header-sub">Chatbot AI Resmi Sekolah</div>
+    </div>
+</div>
+
+<div class="spacer"></div>
+""", unsafe_allow_html=True)
 
 # ==============================
 # HELPER
 # ==============================
 def normalize(text):
-    text = text.lower()
-    text = re.sub(r"[^\w\s]", " ", text)
-    return text.strip()
+    return re.sub(r"[^\w\s]", " ", text.lower()).strip()
 
 def render_user(msg):
     st.markdown(f"""
@@ -124,7 +166,6 @@ def render_bot(msg):
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# render history
 for m in st.session_state.messages:
     if m["role"] == "user":
         render_user(m["content"])
@@ -141,34 +182,11 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     clean_prompt = normalize(prompt)
     reply = None
-    osis = school_data.get("osis", {})
 
     # ==========================
-    # LIST GURU
+    # OSIS FIXED PARSER
     # ==========================
-    if any(k in clean_prompt for k in ["daftar guru", "list guru", "semua guru"]):
-        guru_list = [
-            f"{t.get('nama')} ({t.get('jabatan','')})"
-            for t in teachers
-        ]
-        reply = "<b>Daftar Guru:</b><br>" + "<br>".join([f"• {g}" for g in guru_list])
-
-    # ==========================
-    # LIST WAKA
-    # ==========================
-    elif any(k in clean_prompt for k in ["waka", "wakil kepala"]):
-        waka_list = [
-            f"{t.get('jabatan')} - {t.get('nama')}"
-            for t in teachers
-            if "waka" in t.get("jabatan","").lower()
-            or "wakil kepala" in t.get("jabatan","").lower()
-        ]
-        reply = "<b>Daftar Wakil Kepala Sekolah:</b><br>" + "<br>".join([f"• {w}" for w in waka_list])
-
-    # ==========================
-    # OSIS LENGKAP
-    # ==========================
-    elif "osis" in clean_prompt and osis:
+    if "osis" in clean_prompt and osis:
 
         periode = osis.get("periode", "-")
         inti = osis.get("inti", {})
@@ -178,26 +196,25 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         text += "<b>Pengurus Inti:</b><br>"
 
         for jab, data in inti.items():
-            text += f"• {jab.replace('_',' ').title()}: {data['nama']} ({data['kelas']})<br>"
+            text += f"• {jab.replace('_',' ').title()}: {data.get('nama')} ({data.get('kelas')})<br>"
 
         text += "<br><b>Seksi Bidang:</b><br>"
 
         for s in seksi:
-            text += f"<br><b>{s['nama_seksi']}</b><br>"
-            text += f"• Ketua: {s['ketua']['nama']} ({s['ketua']['kelas']})<br>"
+            text += f"<br><b>{s.get('nama_seksi')}</b><br>"
+            text += f"• Ketua: {s.get('ketua',{}).get('nama')} ({s.get('ketua',{}).get('kelas')})<br>"
+
             for a in s.get("anggota", []):
-                text += f"&nbsp;&nbsp;&nbsp;• {a['nama']} ({a['kelas']})<br>"
+                text += f"&nbsp;&nbsp;&nbsp;• {a.get('nama')} ({a.get('kelas')})<br>"
 
         reply = text
 
     # ==========================
-    # STREAMING AI
+    # STREAMING AI (NO ANIMATION)
     # ==========================
     if reply is None:
 
         full_reply = ""
-        placeholder = st.empty()
-
         stream = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
@@ -211,15 +228,8 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         for chunk in stream:
             if chunk.choices[0].delta.content:
                 full_reply += chunk.choices[0].delta.content
-                placeholder.markdown(f"""
-                <div class="chat-row bot">
-                    <img src="data:image/png;base64,{logo_base64}" class="logo">
-                    <div class="bubble bot-bubble">{full_reply}▌</div>
-                </div>
-                """, unsafe_allow_html=True)
 
         reply = full_reply
-        placeholder.empty()
 
     render_bot(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
