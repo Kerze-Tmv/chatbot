@@ -3,7 +3,6 @@ from openai import OpenAI
 import json
 import re
 import base64
-import os
 
 # ==============================
 # CONFIG
@@ -116,7 +115,7 @@ header {{visibility:hidden;}}
 """, unsafe_allow_html=True)
 
 # ==============================
-# HELPER FUNCTIONS
+# HELPER
 # ==============================
 def normalize(text):
     return re.sub(r"[^\w\s]", " ", text.lower()).strip()
@@ -128,7 +127,7 @@ def render_user(msg):
     </div>
     """, unsafe_allow_html=True)
 
-def render_bot(msg, image_path=None):
+def render_bot(msg):
     st.markdown(f"""
     <div class="chat-row bot">
         <img src="data:image/png;base64,{logo_base64}" class="logo">
@@ -136,82 +135,86 @@ def render_bot(msg, image_path=None):
     </div>
     """, unsafe_allow_html=True)
 
-    if image_path and os.path.exists(image_path):
-        st.image(image_path, width=200)
-
-def get_osis_photo(nama):
-    filename = normalize(nama) + ".jpg"
-    path = os.path.join("osis", filename)
-    return path if os.path.exists(path) else None
-
-def find_teacher_by_subject(prompt):
-    prompt = normalize(prompt)
-    results = []
-
-    for t in teachers:
-        for m in t.get("mapel", []):
-            subject = normalize(m)
-            if subject in prompt or any(word in prompt for word in subject.split()):
-                results.append(t)
-                break
-
-    # remove duplicates
+def remove_duplicates(results):
     unique = []
     seen = set()
     for r in results:
         if r["nama"] not in seen:
             unique.append(r)
             seen.add(r["nama"])
-
     return unique
 
+# ==============================
+# MAPEL SMART MATCH
+# ==============================
+def find_teacher_by_subject(prompt):
+    prompt = normalize(prompt)
+    results = []
+
+    # STEP 1: exact match
+    for t in teachers:
+        for m in t.get("mapel", []):
+            if normalize(m) == prompt:
+                return [t]
+
+    # STEP 2: specific keyword (islam, kristen, tl, dll)
+    specific_keywords = ["islam", "kristen", "katolik", "buddha", "tl"]
+
+    for keyword in specific_keywords:
+        if keyword in prompt:
+            for t in teachers:
+                for m in t.get("mapel", []):
+                    if keyword in normalize(m):
+                        results.append(t)
+                        break
+            return remove_duplicates(results)
+
+    # STEP 3: general match
+    for t in teachers:
+        for m in t.get("mapel", []):
+            subject = normalize(m)
+            base_subject = subject.replace(" tl", "")
+            if base_subject in prompt:
+                results.append(t)
+                break
+
+    return remove_duplicates(results)
+
+# ==============================
+# OSIS SMART MATCH
+# ==============================
 def find_osis_query(prompt):
     prompt = normalize(prompt)
     inti = osis.get("inti", {})
 
-    jabatan_mapping = {
-        "ketua osis": "ketua_umum",
-        "ketua umum": "ketua_umum",
-        "wakil ketua": "wakil_ketua",
-        "ketua harian": "ketua_harian",
-        "sekretaris umum": "sekretaris_umum",
-        "sekretaris": "sekretaris_umum",
-        "wakil sekretaris": "wakil_sekretaris",
-        "bendahara osis": "bendahara_umum",
-        "bendahara umum": "bendahara_umum",
-        "bendahara": "bendahara_umum",
-        "wakil bendahara": "wakil_bendahara",
-    }
+    for jab, data in inti.items():
+        jab_text = jab.replace("_", " ")
+        jab_words = jab_text.split()
 
-    for key, value in jabatan_mapping.items():
-        if key in prompt:
-            data = inti.get(value)
-            if data:
-                nama = data.get("nama")
-                kelas = data.get("kelas")
-                photo = get_osis_photo(nama)
-                return f"{key.title()} adalah {nama} ({kelas}).", photo
+        if all(word in prompt for word in jab_words):
+            return f"{jab_text.title()} adalah {data.get('nama')} ({data.get('kelas')}).", None
+
+        if any(word in prompt for word in jab_words):
+            return f"{jab_text.title()} adalah {data.get('nama')} ({data.get('kelas')}).", None
 
     for s in osis.get("seksi", []):
         nama_seksi = normalize(s.get("nama_seksi", ""))
+        seksi_words = nama_seksi.split()
 
-        if "anggota" in prompt and any(word in prompt for word in nama_seksi.split()):
+        if "anggota" in prompt and any(word in prompt for word in seksi_words):
             text = f"Anggota Seksi {s.get('nama_seksi')}:<br>"
             for a in s.get("anggota", []):
                 text += f"• {a.get('nama')} ({a.get('kelas')})<br>"
             return text, None
 
-        if any(word in prompt for word in nama_seksi.split()):
+        if any(word in prompt for word in seksi_words):
             ketua = s.get("ketua", {})
-            nama = ketua.get("nama")
-            kelas = ketua.get("kelas")
-            photo = get_osis_photo(nama)
-            return f"Ketua Seksi {s.get('nama_seksi')} adalah {nama} ({kelas}).", photo
+            return f"Ketua Seksi {s.get('nama_seksi')} adalah {ketua.get('nama')} ({ketua.get('kelas')}).", None
 
     return None, None
 
 # ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -232,7 +235,6 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     clean_prompt = normalize(prompt)
     reply = None
-    photo = None
 
     # LIST GURU
     if "daftar guru" in clean_prompt:
@@ -258,9 +260,9 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
                 text += f"• {t.get('jabatan')} - {t.get('nama')}<br>"
         reply = text
 
-    # OSIS SPECIFIC
+    # OSIS
     if reply is None and osis:
-        reply, photo = find_osis_query(prompt)
+        reply, _ = find_osis_query(prompt)
 
     # OSIS FULL
     if reply is None and "osis" in clean_prompt:
@@ -281,5 +283,5 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         )
         reply = completion.choices[0].message.content
 
-    render_bot(reply, photo)
+    render_bot(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
