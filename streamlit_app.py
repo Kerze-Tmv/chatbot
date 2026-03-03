@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import json
 import re
-from datetime import datetime
+import base64
 
 # ==============================
 # CONFIG
@@ -21,6 +21,15 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
+# LOAD LOGO
+# ==============================
+def get_base64_image(path):
+    with open(path, "rb") as img:
+        return base64.b64encode(img.read()).decode()
+
+logo_base64 = get_base64_image("logo.png")
+
+# ==============================
 # LOAD DATA
 # ==============================
 try:
@@ -37,69 +46,90 @@ except:
     school_data = {}
 
 # ==============================
-# HELPER FUNCTIONS
+# STYLE
+# ==============================
+st.markdown(f"""
+<style>
+.chat-row {{
+    display: flex;
+    margin-bottom: 15px;
+}}
+
+.user {{
+    justify-content: flex-end;
+}}
+
+.bot {{
+    justify-content: flex-start;
+}}
+
+.bubble {{
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
+    font-size: 14px;
+}}
+
+.user-bubble {{
+    background: #2563eb;
+    color: white;
+}}
+
+.bot-bubble {{
+    background: #f1f5f9;
+    color: black;
+}}
+
+.logo {{
+    width: 38px;
+    height: 38px;
+    margin-right: 10px;
+}}
+
+.header {{
+    text-align: center;
+    margin-bottom: 25px;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("<div class='header'><h2>🎓 SMAN 1 TUNJUNGAN</h2><p style='color:gray;'>Chatbot AI Resmi Sekolah</p></div>", unsafe_allow_html=True)
+
+# ==============================
+# HELPER
 # ==============================
 def normalize(text):
     text = text.lower()
     text = re.sub(r"[^\w\s]", " ", text)
     return text.strip()
 
-def format_bullet_list(items):
-    return "\n".join([f"- {item}" for item in items])
+def render_user(msg):
+    st.markdown(f"""
+    <div class="chat-row user">
+        <div class="bubble user-bubble">{msg}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-def list_all_teachers():
-    teacher_list = []
-    for teacher in teachers:
-        nama = teacher.get("nama", "-")
-        jabatan = teacher.get("jabatan", "")
-        if jabatan:
-            teacher_list.append(f"{nama} ({jabatan})")
-        else:
-            teacher_list.append(nama)
-    return teacher_list
-
-def find_teacher_by_name(prompt):
-    for teacher in teachers:
-        if normalize(teacher.get("nama", "")) in prompt:
-            return teacher
-        for alias in teacher.get("alias", []):
-            if alias.lower() in prompt:
-                return teacher
-    return None
-
-def find_all_waka():
-    waka_list = []
-    for teacher in teachers:
-        jabatan = teacher.get("jabatan", "").lower()
-        if "waka" in jabatan or "wakil kepala" in jabatan:
-            waka_list.append(f"{teacher.get('jabatan')} - {teacher.get('nama')}")
-    return waka_list
-
-def find_teacher_by_subject(prompt):
-    matches = []
-    for teacher in teachers:
-        for subject in teacher.get("mapel", []):
-            pattern = r"\b" + re.escape(subject.lower()) + r"\b"
-            if re.search(pattern, prompt):
-                matches.append(teacher)
-                break
-    return matches
+def render_bot(msg):
+    st.markdown(f"""
+    <div class="chat-row bot">
+        <img src="data:image/png;base64,{logo_base64}" class="logo">
+        <div class="bubble bot-bubble">{msg}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ==============================
-# HEADER
-# ==============================
-st.title("🎓 SMAN 1 TUNJUNGAN")
-st.caption("Chatbot AI Resmi Sekolah")
-
-# ==============================
-# SESSION STATE
+# SESSION
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+# render history
+for m in st.session_state.messages:
+    if m["role"] == "user":
+        render_user(m["content"])
+    else:
+        render_bot(m["content"])
 
 # ==============================
 # INPUT
@@ -107,143 +137,89 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    render_user(prompt)
 
     clean_prompt = normalize(prompt)
     reply = None
-
-    identitas = school_data.get("identitas", {})
-    alamat = school_data.get("alamat", {})
-    statistik = school_data.get("statistik", {})
-    legalitas = school_data.get("legalitas", {})
     osis = school_data.get("osis", {})
 
     # ==========================
-    # FUN
+    # LIST GURU
     # ==========================
-    if "guru" in clean_prompt and "ganteng" in clean_prompt:
-        reply = "Guru paling ganteng adalah Pak Dhimas 😎"
-
-    # ==========================
-    # DATA SEKOLAH
-    # ==========================
-    if reply is None:
-
-        if "alamat" in clean_prompt:
-            reply = (
-                f"Alamat {identitas.get('nama_sekolah','SMAN 1 TUNJUNGAN')} adalah "
-                f"{alamat.get('jalan','-')}, Kec. {alamat.get('kecamatan','-')}, "
-                f"Kab. {alamat.get('kabupaten','-')}, Prov. {alamat.get('provinsi','-')}."
-            )
-
-        elif "npsn" in clean_prompt:
-            reply = f"NPSN adalah {identitas.get('npsn','Tidak tersedia')}."
-
-        elif "jumlah siswa" in clean_prompt:
-            reply = f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total','-')} siswa."
-
-        elif any(k in clean_prompt for k in ["waka", "wakil kepala"]):
-            waka_list = find_all_waka()
-            if waka_list:
-                reply = "## Daftar Wakil Kepala Sekolah\n" + format_bullet_list(waka_list)
-            else:
-                reply = "Data Wakil Kepala Sekolah tidak ditemukan."
-
-        elif any(k in clean_prompt for k in ["daftar guru", "list guru", "semua guru", "guru apa saja"]):
-            teacher_list = list_all_teachers()
-            if teacher_list:
-                reply = "## Daftar Guru\n" + format_bullet_list(teacher_list)
-            else:
-                reply = "Data guru tidak tersedia."
-
-        elif "osis" in clean_prompt:
-            if osis:
-
-                periode = osis.get("periode", "-")
-                inti = osis.get("inti", {})
-                seksi = osis.get("seksi", [])
-
-                osis_text = f"## Struktur OSIS\n"
-                osis_text += f"**Periode:** {periode}\n\n"
-
-                osis_text += "### Pengurus Inti\n"
-                for jabatan, data in inti.items():
-                    nama = data.get("nama", "-")
-                    kelas = data.get("kelas", "-")
-                    jabatan_format = jabatan.replace("_", " ").title()
-                    osis_text += f"- **{jabatan_format}**: {nama} ({kelas})\n"
-
-                osis_text += "\n### Seksi Bidang\n"
-                for s in seksi:
-                    nama_seksi = s.get("nama_seksi", "-")
-                    ketua = s.get("ketua", {})
-                    anggota = s.get("anggota", [])
-
-                    osis_text += f"\n**{nama_seksi}**\n"
-                    osis_text += f"- Ketua: {ketua.get('nama','-')} ({ketua.get('kelas','-')})\n"
-
-                    for a in anggota:
-                        osis_text += f"  - Anggota: {a.get('nama','-')} ({a.get('kelas','-')})\n"
-
-                reply = osis_text
-            else:
-                reply = "Data OSIS tidak tersedia."
+    if any(k in clean_prompt for k in ["daftar guru", "list guru", "semua guru"]):
+        guru_list = [
+            f"{t.get('nama')} ({t.get('jabatan','')})"
+            for t in teachers
+        ]
+        reply = "<b>Daftar Guru:</b><br>" + "<br>".join([f"• {g}" for g in guru_list])
 
     # ==========================
-    # CARI 1 GURU
+    # LIST WAKA
     # ==========================
-    if reply is None:
-        teacher_match = find_teacher_by_name(clean_prompt)
-        if teacher_match:
-            jabatan = teacher_match.get("jabatan")
-            jabatan_text = f" ({jabatan})" if jabatan else ""
-            mapel = ", ".join(teacher_match.get("mapel", []))
-            reply = f"{teacher_match.get('nama')}{jabatan_text} mengampu: {mapel}."
+    elif any(k in clean_prompt for k in ["waka", "wakil kepala"]):
+        waka_list = [
+            f"{t.get('jabatan')} - {t.get('nama')}"
+            for t in teachers
+            if "waka" in t.get("jabatan","").lower()
+            or "wakil kepala" in t.get("jabatan","").lower()
+        ]
+        reply = "<b>Daftar Wakil Kepala Sekolah:</b><br>" + "<br>".join([f"• {w}" for w in waka_list])
 
     # ==========================
-    # GURU PER MAPEL
+    # OSIS LENGKAP
     # ==========================
-    if reply is None:
-        subject_matches = find_teacher_by_subject(clean_prompt)
-        if subject_matches:
-            names = [t.get("nama") for t in subject_matches]
-            reply = "## Guru Pengampu\n" + format_bullet_list(names)
+    elif "osis" in clean_prompt and osis:
+
+        periode = osis.get("periode", "-")
+        inti = osis.get("inti", {})
+        seksi = osis.get("seksi", [])
+
+        text = f"<b>Struktur OSIS Periode {periode}</b><br><br>"
+        text += "<b>Pengurus Inti:</b><br>"
+
+        for jab, data in inti.items():
+            text += f"• {jab.replace('_',' ').title()}: {data['nama']} ({data['kelas']})<br>"
+
+        text += "<br><b>Seksi Bidang:</b><br>"
+
+        for s in seksi:
+            text += f"<br><b>{s['nama_seksi']}</b><br>"
+            text += f"• Ketua: {s['ketua']['nama']} ({s['ketua']['kelas']})<br>"
+            for a in s.get("anggota", []):
+                text += f"&nbsp;&nbsp;&nbsp;• {a['nama']} ({a['kelas']})<br>"
+
+        reply = text
 
     # ==========================
     # STREAMING AI
     # ==========================
     if reply is None:
 
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_reply = ""
+        full_reply = ""
+        placeholder = st.empty()
 
-            stream = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN. Jawab sopan dan profesional."
-                    },
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.2,
-                max_tokens=400,
-                stream=True,
-            )
+        stream = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN."},
+                {"role": "user", "content": prompt}
+            ],
+            stream=True,
+            temperature=0.2,
+        )
 
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    full_reply += chunk.choices[0].delta.content
-                    message_placeholder.markdown(full_reply + "▌")
-
-            message_placeholder.markdown(full_reply)
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                full_reply += chunk.choices[0].delta.content
+                placeholder.markdown(f"""
+                <div class="chat-row bot">
+                    <img src="data:image/png;base64,{logo_base64}" class="logo">
+                    <div class="bubble bot-bubble">{full_reply}▌</div>
+                </div>
+                """, unsafe_allow_html=True)
 
         reply = full_reply
+        placeholder.empty()
 
-    else:
-        with st.chat_message("assistant"):
-            st.markdown(reply)
-
+    render_bot(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
