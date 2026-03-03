@@ -37,7 +37,7 @@ except:
     school_data = {}
 
 # ==============================
-# HELPER FUNCTIONS
+# HELPER
 # ==============================
 def normalize(text):
     text = text.lower()
@@ -93,113 +93,75 @@ if "messages" not in st.session_state:
 # tampilkan riwayat chat
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        st.write(msg["content"])
-        if msg["role"] == "assistant":
-            st.code(msg["content"], language="text")
+        st.markdown(msg["content"])
 
 # ==============================
 # INPUT
 # ==============================
 if prompt := st.chat_input("Tulis pertanyaan Anda..."):
 
-    # tampilkan pesan user langsung
+    # tampilkan user langsung
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.write(prompt)
+        st.markdown(prompt)
 
     clean_prompt = normalize(prompt)
     reply = None
 
-    with st.spinner("Sedang memproses..."):
+    # ==========================
+    # LOGIKA LOKAL (CEPAT)
+    # ==========================
+    if "guru" in clean_prompt and "ganteng" in clean_prompt:
+        reply = "Guru paling ganteng adalah Pak Dhimas 😎"
 
-        # ==========================
-        # FUN
-        # ==========================
-        if "guru" in clean_prompt and "ganteng" in clean_prompt:
-            reply = "Guru paling ganteng adalah Pak Dhimas 😎"
+    if reply is None:
+        identitas = school_data.get("identitas", {})
+        alamat = school_data.get("alamat", {})
+        statistik = school_data.get("statistik", {})
+        legalitas = school_data.get("legalitas", {})
 
-        # ==========================
-        # DATA SEKOLAH
-        # ==========================
-        if reply is None:
-            identitas = school_data.get("identitas", {})
-            alamat = school_data.get("alamat", {})
-            statistik = school_data.get("statistik", {})
-            legalitas = school_data.get("legalitas", {})
+        if "alamat" in clean_prompt:
+            reply = (
+                f"Alamat {identitas.get('nama_sekolah','SMAN 1 TUNJUNGAN')} adalah "
+                f"{alamat.get('jalan','-')}, Kec. {alamat.get('kecamatan','-')}, "
+                f"Kab. {alamat.get('kabupaten','-')}, Prov. {alamat.get('provinsi','-')}."
+            )
 
-            if "alamat" in clean_prompt:
-                reply = (
-                    f"Alamat {identitas.get('nama_sekolah','SMAN 1 TUNJUNGAN')} adalah "
-                    f"{alamat.get('jalan','-')}, Kec. {alamat.get('kecamatan','-')}, "
-                    f"Kab. {alamat.get('kabupaten','-')}, Prov. {alamat.get('provinsi','-')}."
-                )
+        elif "npsn" in clean_prompt:
+            reply = f"NPSN adalah {identitas.get('npsn','Tidak tersedia')}."
 
-            elif "npsn" in clean_prompt:
-                reply = f"NPSN adalah {identitas.get('npsn','Tidak tersedia')}."
+        elif "jumlah siswa" in clean_prompt:
+            reply = f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total','-')} siswa."
 
-            elif "jumlah siswa" in clean_prompt:
-                reply = f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total','-')} siswa."
-
-            elif "kelas 10" in clean_prompt:
-                reply = f"Jumlah siswa kelas 10 adalah {statistik.get('per_tingkat',{}).get('kelas_10','-')} siswa."
-
-            elif "kelas 11" in clean_prompt:
-                reply = f"Jumlah siswa kelas 11 adalah {statistik.get('per_tingkat',{}).get('kelas_11','-')} siswa."
-
-            elif "kelas 12" in clean_prompt:
-                reply = f"Jumlah siswa kelas 12 adalah {statistik.get('per_tingkat',{}).get('kelas_12','-')} siswa."
-
-            elif "umur" in clean_prompt or "berdiri" in clean_prompt:
-                tanggal_str = legalitas.get("sk_pendirian", {}).get("tanggal")
-                if tanggal_str:
-                    tahun_berdiri = datetime.strptime(tanggal_str, "%Y-%m-%d").year
-                    tahun_sekarang = datetime.now().year
-                    umur = tahun_sekarang - tahun_berdiri
-                    reply = f"Sekolah berdiri sejak {tahun_berdiri} dan berusia {umur} tahun."
-                else:
-                    reply = "Data tahun berdiri tidak tersedia."
-
-        # ==========================
-        # WAKA
-        # ==========================
-        if reply is None and "waka" in clean_prompt:
+        elif "waka" in clean_prompt:
             waka_list = find_all_waka()
             if waka_list:
                 reply = "Daftar Wakil Kepala Sekolah:\n" + "\n".join(waka_list)
 
-        # ==========================
-        # JABATAN
-        # ==========================
-        if reply is None:
-            jabatan_match = find_by_jabatan(clean_prompt)
-            if jabatan_match:
-                reply = f"{jabatan_match.get('jabatan')} adalah {jabatan_match.get('nama')}."
+    if reply is None:
+        teacher_match = find_teacher_by_name(clean_prompt)
+        if teacher_match:
+            jabatan = teacher_match.get("jabatan")
+            jabatan_text = f" ({jabatan})" if jabatan else ""
+            mapel = ", ".join(teacher_match.get("mapel", []))
+            reply = f"{teacher_match.get('nama')}{jabatan_text} mengampu: {mapel}."
 
-        # ==========================
-        # NAMA GURU
-        # ==========================
-        if reply is None:
-            teacher_match = find_teacher_by_name(clean_prompt)
-            if teacher_match:
-                jabatan = teacher_match.get("jabatan")
-                jabatan_text = f" ({jabatan})" if jabatan else ""
-                mapel = ", ".join(teacher_match.get("mapel", []))
-                reply = f"{teacher_match.get('nama')}{jabatan_text} mengampu: {mapel}."
+    if reply is None:
+        subject_matches = find_teacher_by_subject(clean_prompt)
+        if subject_matches:
+            names = [t.get("nama") for t in subject_matches]
+            reply = f"Guru yang mengampu mata pelajaran tersebut adalah: {', '.join(names)}."
 
-        # ==========================
-        # MAPEL
-        # ==========================
-        if reply is None:
-            subject_matches = find_teacher_by_subject(clean_prompt)
-            if subject_matches:
-                names = [t.get("nama") for t in subject_matches]
-                reply = f"Guru yang mengampu mata pelajaran tersebut adalah: {', '.join(names)}."
+    # ==========================
+    # STREAMING AI (ANTI DELAY)
+    # ==========================
+    if reply is None:
 
-        # ==========================
-        # FALLBACK AI
-        # ==========================
-        if reply is None:
-            completion = client.chat.completions.create(
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_reply = ""
+
+            stream = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[
                     {
@@ -210,11 +172,20 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
                 ],
                 temperature=0.2,
                 max_tokens=400,
+                stream=True,
             )
-            reply = completion.choices[0].message.content
 
-    # tampilkan jawaban
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    full_reply += chunk.choices[0].delta.content
+                    message_placeholder.markdown(full_reply + "▌")
+
+            message_placeholder.markdown(full_reply)
+
+        reply = full_reply
+
+    else:
+        with st.chat_message("assistant"):
+            st.markdown(reply)
+
     st.session_state.messages.append({"role": "assistant", "content": reply})
-    with st.chat_message("assistant"):
-        st.write(reply)
-        st.code(reply, language="text")
