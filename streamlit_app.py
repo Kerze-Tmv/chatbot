@@ -151,21 +151,41 @@ def handle_school_profile(prompt):
     if "jumlah siswa" in prompt:
         return f"Jumlah total siswa adalah {statistik.get('jumlah_siswa_total')} siswa."
 
-    if "visi" in prompt:
-        return f"Visi: {school_data.get('visi')}"
-
-    if "misi" in prompt:
-        text = "Misi Sekolah:<br>"
-        for m in school_data.get("misi", []):
-            text += f"• {m}<br>"
-        return text
-
     if "berdiri" in prompt or "umur" in prompt:
         tanggal = legalitas.get("sk_pendirian", {}).get("tanggal")
         if tanggal:
             tahun = datetime.strptime(tanggal, "%Y-%m-%d").year
             umur = datetime.now().year - tahun
             return f"{identitas.get('nama_sekolah')} berdiri sejak {tahun} dan saat ini berusia {umur} tahun."
+
+    return None
+
+# ==============================
+# GURU - NAMA / ALIAS
+# ==============================
+def format_teacher_detail(t):
+    text = f"<b>{t.get('nama')}</b><br><br>"
+    if t.get("jabatan"):
+        text += f"Jabatan: {t.get('jabatan')}<br>"
+    if t.get("mapel"):
+        text += f"Mengampu: {', '.join(t.get('mapel'))}"
+    return text
+
+def find_teacher_by_name(prompt):
+    prompt = normalize(prompt)
+
+    for t in teachers:
+        nama = normalize(t.get("nama",""))
+        if nama in prompt:
+            return format_teacher_detail(t)
+
+        for word in nama.split():
+            if word in prompt:
+                return format_teacher_detail(t)
+
+        for alias in t.get("alias", []):
+            if normalize(alias) in prompt:
+                return format_teacher_detail(t)
 
     return None
 
@@ -181,7 +201,7 @@ def find_teacher_by_position(prompt):
     return None
 
 # ==============================
-# WAKA
+# WAKA SMART
 # ==============================
 def find_waka(prompt):
     prompt = normalize(prompt)
@@ -212,9 +232,9 @@ def find_teacher_by_subject(prompt):
     prompt = normalize(prompt)
     results = []
 
-    specific_keywords = ["islam", "kristen", "katolik", "buddha", "tl"]
+    keywords = ["islam", "kristen", "katolik", "buddha", "tl"]
 
-    for keyword in specific_keywords:
+    for keyword in keywords:
         if keyword in prompt:
             for t in teachers:
                 for m in t.get("mapel", []):
@@ -277,7 +297,11 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     clean_prompt = normalize(prompt)
     reply = None
 
+    # PRIORITAS LOGIC
     reply = handle_school_profile(prompt)
+
+    if reply is None:
+        reply = find_teacher_by_name(prompt)
 
     if reply is None:
         reply = find_teacher_by_position(prompt)
@@ -296,45 +320,18 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
     if reply is None:
         reply = find_osis_query(prompt)
 
+    # AI FALLBACK DENGAN LOADING
     if reply is None:
-
-        thinking = st.empty()
-
-        thinking.markdown(f"""
-        <div class="chat-row bot">
-            <img src="data:image/png;base64,{logo_base64}" class="logo">
-            <div class="bubble bot-bubble">
-                🤖 AI sedang berpikir<span class="dots"></span>
-            </div>
-        </div>
-
-        <style>
-        .dots::after {{
-            content: '';
-            animation: dots 1.5s steps(4, end) infinite;
-        }}
-        @keyframes dots {{
-            0% {{ content: ''; }}
-            25% {{ content: '.'; }}
-            50% {{ content: '..'; }}
-            75% {{ content: '...'; }}
-            100% {{ content: ''; }}
-        }}
-        </style>
-        """, unsafe_allow_html=True)
-
-        completion = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2,
-        )
-
-        reply = completion.choices[0].message.content
-
-        thinking.empty()
+        with st.spinner("AI sedang mengetik..."):
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": "Anda adalah Chatbot Resmi SMAN 1 TUNJUNGAN."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2,
+            )
+            reply = completion.choices[0].message.content
 
     render_bot(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})
