@@ -21,7 +21,7 @@
       "alias": [],
       "mapel": ["Kimia TL", "Kimia"],
       "jabatan": null,
-      "wali_kelas": ["XII1"],
+      "wali_kelas": ["XII 1"],
       "bk_kelas": []
     },
     {
@@ -37,7 +37,7 @@
       "alias": [],
       "mapel": ["Biologi TL"],
       "jabatan": null,
-      "wali_kelas": ["XII4"],
+      "wali_kelas": ["XII 4"],
       "bk_kelas": []
     },
     {
@@ -53,7 +53,7 @@
       "alias": [],
       "mapel": ["Biologi TL"],
       "jabatan": null,
-      "wali_kelas": ["XII8"],
+      "wali_kelas": ["XII 8"],
       "bk_kelas": []
     },
     {
@@ -61,7 +61,7 @@
       "alias": [],
       "mapel": ["Pendidikan Agama Islam", "Agama Islam"],
       "jabatan": null,
-      "wali_kelas": ["XII3"],
+      "wali_kelas": ["XII 3"],
       "bk_kelas": []
     },
     {
@@ -69,7 +69,7 @@
       "alias": [],
       "mapel": ["Bahasa Inggris", "Bahasa Inggris TL"],
       "jabatan": null,
-      "wali_kelas": ["XII5"],
+      "wali_kelas": ["XII 5"],
       "bk_kelas": []
     },
     {
@@ -77,7 +77,7 @@
       "alias": [],
       "mapel": ["Fisika TL", "Fisika"],
       "jabatan": null,
-      "wali_kelas": ["XI3"],
+      "wali_kelas": ["XI 3"],
       "bk_kelas": []
     },
     {
@@ -85,7 +85,7 @@
       "alias": [],
       "mapel": ["Matematika TL"],
       "jabatan": null,
-      "wali_kelas": ["XII2"],
+      "wali_kelas": ["XII 2"],
       "bk_kelas": []
     },
     {
@@ -93,7 +93,7 @@
       "alias": [],
       "mapel": ["Ekonomi TL"],
       "jabatan": null,
-      "wali_kelas": ["XII7"],
+      "wali_kelas": ["XII 7"],
       "bk_kelas": []
     },
     {
@@ -101,7 +101,7 @@
       "alias": [],
       "mapel": ["Bahasa Indonesia"],
       "jabatan": null,
-      "wali_kelas": ["XII6"],
+      "wali_kelas": ["XII 6"],
       "bk_kelas": []
     },
     {
@@ -109,7 +109,7 @@
       "alias": [],
       "mapel": ["Bahasa Indonesia"],
       "jabatan": null,
-      "wali_kelas": ["XI1"],
+      "wali_kelas": ["XI 1"],
       "bk_kelas": []
     },
     {
@@ -117,7 +117,7 @@
       "alias": [],
       "mapel": ["Ekonomi", "PKWU"],
       "jabatan": null,
-      "wali_kelas": ["XI7"],
+      "wali_kelas": ["XI 7"],
       "bk_kelas": []
     },
     {
@@ -125,7 +125,7 @@
       "alias": [],
       "mapel": ["Matematika", "Matematika TL"],
       "jabatan": null,
-      "wali_kelas": ["XI5"],
+      "wali_kelas": ["XI 5"],
       "bk_kelas": []
     },
     {
@@ -133,7 +133,7 @@
       "alias": [],
       "mapel": ["Sejarah Indonesia", "Sejarah TL"],
       "jabatan": null,
-      "wali_kelas": ["XI8"],
+      "wali_kelas": ["XI 8"],
       "bk_kelas": []
     },
     {
@@ -149,7 +149,7 @@
       "alias": [],
       "mapel": ["Geografi", "Geografi TL"],
       "jabatan": null,
-      "wali_kelas": ["X3"],
+      "wali_kelas": ["X 3"],
       "bk_kelas": []
     },
     {
@@ -157,7 +157,7 @@
       "alias": [],
       "mapel": ["Bahasa Inggris"],
       "jabatan": null,
-      "wali_kelas": ["XII9"],
+      "wali_kelas": ["XII 9"],
       "bk_kelas": []
     },
     {
@@ -165,7 +165,7 @@
       "alias": [],
       "mapel": ["Seni Budaya"],
       "jabatan": null,
-      "wali_kelas": ["X5"],
+      "wali_kelas": ["X 5"],
       "bk_kelas": []
     },
     {
@@ -173,7 +173,7 @@
       "alias": [],
       "mapel": ["Biologi"],
       "jabatan": null,
-      "wali_kelas": ["X10"],
+      "wali_kelas": ["X 10"],
       "bk_kelas": []
     },
     {
@@ -181,7 +181,7 @@
       "alias": [],
       "mapel": ["Pendidikan Agama Islam", "Agama Islam"],
       "jabatan": null,
-      "wali_kelas": ["X1"],
+      "wali_kelas": ["X 1"],
       "bk_kelas": []
     },
     {
@@ -189,7 +189,7 @@
       "alias": [],
       "mapel": ["PJOK", "Olahraga"],
       "jabatan": null,
-      "wali_kelas": ["X9"],
+      "wali_kelas": ["X 9"],
       "bk_kelas": []
     },
     {
@@ -197,7 +197,7 @@
       "alias": [],
       "mapel": ["Sosiologi", "Sosiologi TL"],
       "jabatan": null,
-      "wali_kelas": ["X8"],
+      "wali_kelas": ["X 8"],
       "bk_kelas": []
     },
     {
@@ -205,7 +205,7 @@
       "alias": [],
       "mapel": ["Kimia", "PKWU"],
       "jabatan": null,
-      "wali_kelas": ["X4"],
+      "wali_kelas": ["X 4"],
       "bk_kelas": []
     },
     {
@@ -221,7 +221,7 @@
       "alias": [],
       "mapel": ["Geografi", "PKWU"],
       "jabatan": null,
-      "wali_kelas": ["XI6"],
+      "wali_kelas": ["XI 6"],
       "bk_kelas": []
     },
     {
@@ -229,7 +229,7 @@
       "alias": [],
       "mapel": ["PJOK", "Olahraga"],
       "jabatan": null,
-      "wali_kelas": ["X6"],
+      "wali_kelas": ["X 6"],
       "bk_kelas": []
     },
     {
@@ -237,7 +237,7 @@
       "alias": [],
       "mapel": ["Pendidikan Pancasila"],
       "jabatan": null,
-      "wali_kelas": ["XI4"],
+      "wali_kelas": ["XI 0"],
       "bk_kelas": []
     },
     {
@@ -245,7 +245,7 @@
       "alias": [],
       "mapel": ["Pendidikan Pancasila"],
       "jabatan": null,
-      "wali_kelas": ["X7"],
+      "wali_kelas": ["X 7"],
       "bk_kelas": []
     },
     {
@@ -253,7 +253,7 @@
       "alias": [],
       "mapel": ["Bahasa Jawa"],
       "jabatan": null,
-      "wali_kelas": ["XI9"],
+      "wali_kelas": ["XI 4"],
       "bk_kelas": []
     },
     {
@@ -261,7 +261,7 @@
       "alias": [],
       "mapel": ["Matematika", "Matematika TL"],
       "jabatan": null,
-      "wali_kelas": ["X11"],
+      "wali_kelas": ["X 11"],
       "bk_kelas": []
     },
     {
@@ -269,7 +269,7 @@
       "alias": [],
       "mapel": ["Matematika"],
       "jabatan": null,
-      "wali_kelas": ["XI2"],
+      "wali_kelas": ["X I2"],
       "bk_kelas": []
     }
   ]
