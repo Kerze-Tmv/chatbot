@@ -1,6 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 import base64
+import json
 import re
 
 # ==============================
@@ -20,6 +21,45 @@ client = OpenAI(
 MODEL_NAME = "llama-3.1-8b-instant"
 
 # ==============================
+# LOAD JSON DATABASE
+# ==============================
+with open("teachers.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+teachers = data["guru"]
+
+# ==============================
+# HELPER FUNCTIONS
+# ==============================
+def normalize(text):
+    text = text.lower()
+    text = re.sub(r"[^\w\s]", " ", text)
+    return text
+
+def find_teacher_by_name(prompt):
+    for teacher in teachers:
+        if normalize(teacher["nama"]) in prompt:
+            return teacher
+        for alias in teacher["alias"]:
+            if alias in prompt:
+                return teacher
+    return None
+
+def find_teacher_by_subject(prompt):
+    results = []
+    for teacher in teachers:
+        for subject in teacher["mapel"]:
+            if subject.lower() in prompt:
+                results.append(teacher)
+    return results
+
+def find_by_jabatan(prompt):
+    for teacher in teachers:
+        if teacher["jabatan"] and teacher["jabatan"].lower() in prompt:
+            return teacher
+    return None
+
+# ==============================
 # LOAD LOGO
 # ==============================
 def get_base64_image(image_path):
@@ -27,21 +67,6 @@ def get_base64_image(image_path):
         return base64.b64encode(img.read()).decode()
 
 logo_base64 = get_base64_image("logo.png")
-
-# ==============================
-# DATABASE GURU + ALIAS
-# ==============================
-teacher_data = {
-    "dhimas wisang aldoko": ["Informatika"],
-    "dhimas": ["Informatika"],
-    "pak dhimas": ["Informatika"],
-
-    "ana dwi ariyani": ["Kimia", "Informatika", "Fisika"],
-    "ana": ["Kimia", "Informatika", "Fisika"],
-
-    "nyoto": ["Matematika"],
-    "dra yuni niwati": ["Bahasa Inggris", "Kepala Sekolah"],
-}
 
 # ==============================
 # UI HEADER
@@ -70,7 +95,6 @@ header, #MainMenu, footer {{ visibility: hidden; }}
 }}
 
 .logo {{ width: 55px; }}
-
 .header-spacer {{ height: 110px; }}
 
 .chat-bubble {{
@@ -107,7 +131,7 @@ header, #MainMenu, footer {{ visibility: hidden; }}
 """, unsafe_allow_html=True)
 
 # ==============================
-# SESSION
+# SESSION STATE
 # ==============================
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -130,41 +154,43 @@ if prompt := st.chat_input("Tulis pertanyaan Anda..."):
         unsafe_allow_html=True
     )
 
-    lower_prompt = prompt.lower()
-    clean_prompt = re.sub(r"[^\w\s]", " ", lower_prompt)
-
+    clean_prompt = normalize(prompt)
     reply = None
 
     # ==============================
-    # RULE GURU GANTENG
+    # RULE: FUN
     # ==============================
     if "guru" in clean_prompt and "ganteng" in clean_prompt:
         reply = "Guru paling ganteng adalah Pak Dhimas 😎"
 
     # ==============================
-    # CEK MAPEL (DATABASE DULU)
+    # CEK JABATAN
     # ==============================
     if reply is None:
-        for teacher, subjects in teacher_data.items():
-            for subject in subjects:
-                if subject.lower() in clean_prompt:
-                    reply = f"Guru yang mengampu {subject} adalah {teacher.title()}."
-                    break
-            if reply:
-                break
+        jabatan_match = find_by_jabatan(clean_prompt)
+        if jabatan_match:
+            reply = f"{jabatan_match['jabatan']} adalah {jabatan_match['nama']}."
 
     # ==============================
     # CEK NAMA GURU
     # ==============================
     if reply is None:
-        for teacher in teacher_data.keys():
-            if teacher in clean_prompt:
-                subjects = teacher_data[teacher]
-                reply = f"{teacher.title()} mengampu: {', '.join(subjects)}."
-                break
+        teacher_match = find_teacher_by_name(clean_prompt)
+        if teacher_match:
+            jabatan = f" ({teacher_match['jabatan']})" if teacher_match["jabatan"] else ""
+            reply = f"{teacher_match['nama']}{jabatan} mengampu: {', '.join(teacher_match['mapel'])}."
 
     # ==============================
-    # FALLBACK AI (HANYA JIKA TIDAK MATCH)
+    # CEK MAPEL
+    # ==============================
+    if reply is None:
+        subject_matches = find_teacher_by_subject(clean_prompt)
+        if subject_matches:
+            names = [t["nama"] for t in subject_matches]
+            reply = f"Guru yang mengampu mata pelajaran tersebut adalah: {', '.join(names)}."
+
+    # ==============================
+    # FALLBACK AI
     # ==============================
     if reply is None:
         with st.spinner("AI sedang mengetik..."):
@@ -188,7 +214,6 @@ Jawab dalam Bahasa Indonesia yang sopan dan profesional.
 
             reply = completion.choices[0].message.content
             reply = reply.replace("Tunjunggan", "TUNJUNGAN")
-            reply = reply.replace("tunjunggan", "TUNJUNGAN")
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
     st.markdown(
