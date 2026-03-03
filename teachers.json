@@ -2,8 +2,13 @@
   "guru": [
     {
       "nama": "Dra. Yuni Ni'wati",
-      "alias": ["bu yuni", "yuni"],
-      "mapel": ["Bahasa Inggris"],
+      "alias": [
+        "bu yuni",
+        "yuni"
+      ],
+      "mapel": [
+        "Bahasa Inggris"
+      ],
       "jabatan": "Kepala Sekolah",
       "wali_kelas": [],
       "bk_kelas": []
@@ -11,7 +16,10 @@
     {
       "nama": "Dra. Nurlaela Atmaningtri",
       "alias": [],
-      "mapel": ["Ekonomi TL", "PKWU"],
+      "mapel": [
+        "Ekonomi TL",
+        "PKWU"
+      ],
       "jabatan": null,
       "wali_kelas": [],
       "bk_kelas": []
@@ -19,15 +27,20 @@
     {
       "nama": "Ninik Juliastuti",
       "alias": [],
-      "mapel": ["Kimia TL", "Kimia"],
+      "mapel": [
+        "Kimia TL",
+        "Kimia"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 1"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Lilik Fitri Kusumawati",
       "alias": [],
-      "mapel": ["Ekonomi"],
+      "mapel": [
+        "Ekonomi"
+      ],
       "jabatan": null,
       "wali_kelas": [],
       "bk_kelas": []
@@ -35,111 +48,144 @@
     {
       "nama": "Titik Nurhayati",
       "alias": [],
-      "mapel": ["Biologi TL"],
+      "mapel": [
+        "Biologi TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 4"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Sumartini",
       "alias": [],
-      "mapel": ["Seni Budaya"],
+      "mapel": [
+        "Seni Budaya"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X2"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Dra. Retno Umi Haryati",
       "alias": [],
-      "mapel": ["Biologi TL"],
+      "mapel": [
+        "Biologi TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 8"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Drs. Masngud",
       "alias": [],
-      "mapel": ["Pendidikan Agama Islam", "Agama Islam"],
+      "mapel": [
+        "Pendidikan Agama Islam"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 3"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Dra. Theresia Mulyorini",
       "alias": [],
-      "mapel": ["Bahasa Inggris", "Bahasa Inggris TL"],
+      "mapel": [
+        "Bahasa Inggris",
+        "Bahasa Inggris TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 5"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Yarto",
       "alias": [],
-      "mapel": ["Fisika TL", "Fisika"],
+      "mapel": [
+        "Fisika TL",
+        "Fisika"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 3"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Watiningsih",
       "alias": [],
-      "mapel": ["Matematika TL"],
+      "mapel": [
+        "Matematika TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 2"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Siti Niamah",
       "alias": [],
-      "mapel": ["Ekonomi TL"],
+      "mapel": [
+        "Ekonomi TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 7"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Suhartini",
       "alias": [],
-      "mapel": ["Bahasa Indonesia"],
+      "mapel": [
+        "Bahasa Indonesia"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 6"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Dra. Sri Astutik",
       "alias": [],
-      "mapel": ["Bahasa Indonesia"],
+      "mapel": [
+        "Bahasa Indonesia"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 1"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Hari Setyawati",
       "alias": [],
-      "mapel": ["Ekonomi", "PKWU"],
+      "mapel": [
+        "Ekonomi",
+        "PKWU"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 7"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Sunarni",
       "alias": [],
-      "mapel": ["Matematika", "Matematika TL"],
+      "mapel": [
+        "Matematika",
+        "Matematika TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 5"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Muhammad Ainur Rofiq",
       "alias": [],
-      "mapel": ["Sejarah Indonesia", "Sejarah TL"],
+      "mapel": [
+        "Sejarah Indonesia",
+        "Sejarah TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 8"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Anik Aprilyani",
       "alias": [],
-      "mapel": ["Geografi"],
+      "mapel": [
+        "Geografi"
+      ],
       "jabatan": "Waka Kurikulum",
       "wali_kelas": [],
       "bk_kelas": []
@@ -147,71 +193,205 @@
     {
       "nama": "Donna Heri Satyani",
       "alias": [],
-      "mapel": ["Geografi", "Geografi TL"],
+      "mapel": [
+        "Geografi",
+        "Geografi TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 3"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Sulastriyani",
+      "alias": [],
+      "mapel": [
+        "Sejarah Indonesia",
+        "Sejarah TL"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Firman Fridayanto",
       "alias": [],
-      "mapel": ["Bahasa Inggris"],
+      "mapel": [
+        "Bahasa Inggris"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XII 9"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Ikwan Insanjaya",
       "alias": [],
-      "mapel": ["Seni Budaya"],
+      "mapel": [
+        "Seni Budaya"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 5"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Kari Rahayu",
       "alias": [],
-      "mapel": ["Biologi"],
+      "mapel": [
+        "Biologi"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 10"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Zainal Arifin",
       "alias": [],
-      "mapel": ["Pendidikan Agama Islam", "Agama Islam"],
+      "mapel": [
+        "Pendidikan Agama Islam"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 1"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Novita Ariana",
+      "alias": [],
+      "mapel": [
+        "BK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Rahayu Indrayati",
       "alias": [],
-      "mapel": ["PJOK", "Olahraga"],
+      "mapel": [
+        "PJOK"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 9"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Sriyani",
       "alias": [],
-      "mapel": ["Sosiologi", "Sosiologi TL"],
+      "mapel": [
+        "Sosiologi",
+        "Sosiologi TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 8"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Endang Setyowati",
+      "alias": [],
+      "mapel": [
+        "BK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Galuh Sekar Wijayanti",
+      "alias": [],
+      "mapel": [
+        "BK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Ayudhia Sari Rahmadani",
+      "alias": [],
+      "mapel": [
+        "Bahasa Indonesia"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Syarifuddin Ahmad",
+      "alias": [],
+      "mapel": [
+        "Bahasa Indonesia"
+      ],
+      "jabatan": "Waka Humas",
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Irma Pramestiningrum",
+      "alias": [],
+      "mapel": [
+        "Fisika TL",
+        "Fisika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Neneng Oktora Budiasri",
+      "alias": [],
+      "mapel": [
+        "Matematika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Dwi Nur Setiyawati",
+      "alias": [],
+      "mapel": [
+        "BK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Wahidatun Nurul Hidayah",
+      "alias": [],
+      "mapel": [
+        "BK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Santi Aprilia Riyanti",
       "alias": [],
-      "mapel": ["Kimia", "PKWU"],
+      "mapel": [
+        "Kimia",
+        "PKWU"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 4"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Jatmiko",
+      "alias": [],
+      "mapel": [
+        "Bahasa Indonesia"
+      ],
+      "jabatan": "Waka Sarpras",
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Nihza Al Lutfi",
       "alias": [],
-      "mapel": ["Sejarah Indonesia", "Geografi"],
+      "mapel": [
+        "Sejarah Indonesia",
+        "Geografi"
+      ],
       "jabatan": "Waka Kesiswaan",
       "wali_kelas": [],
       "bk_kelas": []
@@ -219,57 +399,281 @@
     {
       "nama": "Udin Hendri Santoso",
       "alias": [],
-      "mapel": ["Geografi", "PKWU"],
+      "mapel": [
+        "Geografi",
+        "PKWU"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 6"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Haniffuddin",
+      "alias": [],
+      "mapel": [
+        "Sosiologi",
+        "Sosiologi TL"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Sam Getta Gumilar",
       "alias": [],
-      "mapel": ["PJOK", "Olahraga"],
+      "mapel": [
+        "PJOK"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 6"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Anik Setyarini",
       "alias": [],
-      "mapel": ["Pendidikan Pancasila"],
+      "mapel": [
+        "Pendidikan Pancasila"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 0"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Alifa Nurul Tafricha",
       "alias": [],
-      "mapel": ["Pendidikan Pancasila"],
+      "mapel": [
+        "Pendidikan Pancasila"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 7"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Nurlaili Miftakhuzzilvana",
       "alias": [],
-      "mapel": ["Bahasa Jawa"],
+      "mapel": [
+        "Bahasa Jawa"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 4"],
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Moh. Cholilur Rohman",
       "alias": [],
-      "mapel": ["Matematika", "Matematika TL"],
+      "mapel": [
+        "Matematika",
+        "Matematika TL"
+      ],
       "jabatan": null,
-      "wali_kelas": ["X 11"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Basar Siswantoro",
+      "alias": [],
+      "mapel": [
+        "PJOK"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Lailly Oktavianingrum",
+      "alias": [],
+      "mapel": [
+        "Kimia TL"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     },
     {
       "nama": "Sri Purwati",
       "alias": [],
-      "mapel": ["Matematika"],
+      "mapel": [
+        "Matematika"
+      ],
       "jabatan": null,
-      "wali_kelas": ["XI 2"],
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Dhony Wijaya",
+      "alias": [],
+      "mapel": [
+        "Matematika Wajib"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Siti Listyowati",
+      "alias": [],
+      "mapel": [
+        "Fisika",
+        "Fisika TL"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Satria Yoga Tama",
+      "alias": [],
+      "mapel": [
+        "Bahasa Jawa"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Manggar Shintia Wibawanti",
+      "alias": [],
+      "mapel": [
+        "Matematika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Joko Priyanto",
+      "alias": [],
+      "mapel": [
+        "PKWU",
+        "Sejarah"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Ahmad Ni'am",
+      "alias": [],
+      "mapel": [
+        "Pendidikan Agama Islam"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Wiwit Suryaningsih",
+      "alias": [],
+      "mapel": [
+        "Biologi TL",
+        "Fisika",
+        "Biologi"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Nyoto",
+      "alias": [],
+      "mapel": [
+        "Matematika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Lilik Kurniawan",
+      "alias": [],
+      "mapel": [
+        "PKWU",
+        "Sejarah"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Dwi Setyowati",
+      "alias": [],
+      "mapel": [
+        "Bahasa Jawa"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Ana Dwi Ariyani",
+      "alias": [],
+      "mapel": [
+        "Kimia",
+        "Informatika",
+        "Fisika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Wheny Wulandari",
+      "alias": [],
+      "mapel": [
+        "Bahasa Inggris"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Sr. Veronika Sedo Bura",
+      "alias": [],
+      "mapel": [
+        "Agama Katolik"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Sri Rusmini",
+      "alias": [],
+      "mapel": [
+        "Agama Kristen"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Dhimas Wisang Aldoko",
+      "alias": [],
+      "mapel": [
+        "Informatika"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Sukemi",
+      "alias": [],
+      "mapel": [
+        "Pendidikan Agama Islam"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
+      "bk_kelas": []
+    },
+    {
+      "nama": "Eko Budi Lestari",
+      "alias": [],
+      "mapel": [
+        "Agama Buddha"
+      ],
+      "jabatan": null,
+      "wali_kelas": [],
       "bk_kelas": []
     }
   ]
